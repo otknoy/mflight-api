@@ -10,8 +10,21 @@ type Metrics struct {
 	Illuminance Illuminance `xml:"illu"`
 }
 
-func GetMetrics() (Metrics, error) {
-	res, err := getSensorMonitor()
+type Sensor interface {
+	GetMetrics() (Metrics, error)
+}
+
+type MfLight struct {
+	ServerURL string
+	MobileID  string
+}
+
+func NewMfLight(serverUrl, mobileID string) Sensor {
+	return &MfLight{serverUrl, mobileID}
+}
+
+func (l *MfLight) GetMetrics() (Metrics, error) {
+	res, err := getSensorMonitor(l.ServerURL, l.MobileID)
 	if err != nil {
 		return Metrics{}, err
 	}

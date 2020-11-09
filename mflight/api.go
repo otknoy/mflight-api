@@ -20,12 +20,11 @@ type Response struct {
 	Tables []Table `xml:"table"`
 }
 
-func getSensorMonitor() (Response, error) {
-	baseUrl := "http://192.168.1.16:56002"
+func getSensorMonitor(baseUrl, mobileId string) (Response, error) {
 	path := "/SensorMonitorV2.xml"
 
 	qs := url.Values{
-		"x-KEY_MOBILE_ID":   []string{"xxxx"},
+		"x-KEY_MOBILE_ID":   []string{mobileId},
 		"x-KEY_UPDATE_DATE": []string{""},
 	}
 
