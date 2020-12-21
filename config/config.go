@@ -6,23 +6,26 @@ import (
 	"strconv"
 )
 
-type ServerConfig struct {
+// AppConfig has the configuration for entire application
+type AppConfig struct {
 	Port    int
 	MfLight MfLightConfig
 }
 
+// MfLightConfig has the configuration to connect MfLight
 type MfLightConfig struct {
 	URL      string
 	MobileID string
 }
 
-func Load() (ServerConfig, error) {
+// Load loads the configuration
+func Load() (AppConfig, error) {
 	port, err := strconv.Atoi(os.Getenv("APP_PORT"))
 	if err != nil {
-		return ServerConfig{}, errors.New("invalid port")
+		return AppConfig{}, errors.New("invalid port")
 	}
 
-	sc := ServerConfig{
+	sc := AppConfig{
 		port,
 		MfLightConfig{
 			os.Getenv("APP_MFLIGHT_URL"),
