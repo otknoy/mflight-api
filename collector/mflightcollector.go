@@ -4,6 +4,7 @@ import (
 	"mflight-exporter/mflight"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 const (
@@ -51,7 +52,11 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements Collector
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
-	m, _ := c.sensor.GetMetrics()
+	m, err := c.sensor.GetMetrics()
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
 
 	ch <- prometheus.MustNewConstMetric(
 		temperatureGauge.Desc(),
