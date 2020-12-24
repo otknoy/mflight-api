@@ -1,5 +1,10 @@
 package mflight
 
+import (
+	"errors"
+	"fmt"
+)
+
 type Temperature float32
 type Humidity float32
 type Illuminance int16
@@ -30,7 +35,12 @@ func (l *mfLightSensor) GetMetrics() (Metrics, error) {
 	}
 
 	tables := res.Tables
-	table := tables[len(tables)-1]
+	last := len(tables) - 1
+	if last < 0 {
+		return Metrics{}, errors.New(fmt.Sprintf("invalid api response: %v", res))
+	}
+
+	table := tables[last]
 
 	m := Metrics{
 		Temperature(table.Temperature),
