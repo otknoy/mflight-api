@@ -28,21 +28,29 @@ var (
 	})
 )
 
-type MfLightCollector struct {
+// MfLightCollector is the MfLight metrics collector
+type MfLightCollector interface {
+	prometheus.Collector
+}
+
+// NewMfLightCollector create a new MfLightCollector based on the provided Sensor
+func NewMfLightCollector(sensor mflight.Sensor) prometheus.Collector {
+	return &collector{sensor}
+}
+
+type collector struct {
 	sensor mflight.Sensor
 }
 
-func NewMfLightCollector(sensor mflight.Sensor) prometheus.Collector {
-	return &MfLightCollector{sensor}
-}
-
-func (c *MfLightCollector) Describe(ch chan<- *prometheus.Desc) {
+// Describe implements Collector
+func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- temperatureGauge.Desc()
 	ch <- humidityGauge.Desc()
 	ch <- illuminanceGauge.Desc()
 }
 
-func (c *MfLightCollector) Collect(ch chan<- prometheus.Metric) {
+// Collect implements Collector
+func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	m, _ := c.sensor.GetMetrics()
 
 	ch <- prometheus.MustNewConstMetric(

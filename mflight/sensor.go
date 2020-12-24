@@ -14,17 +14,17 @@ type Sensor interface {
 	GetMetrics() (Metrics, error)
 }
 
-type MfLight struct {
-	ServerURL string
-	MobileID  string
+type mfLightSensor struct {
+	serverURL string
+	mobileID  string
 }
 
 func NewMfLight(serverUrl, mobileID string) Sensor {
-	return &MfLight{serverUrl, mobileID}
+	return &mfLightSensor{serverUrl, mobileID}
 }
 
-func (l *MfLight) GetMetrics() (Metrics, error) {
-	res, err := getSensorMonitor(l.ServerURL, l.MobileID)
+func (l *mfLightSensor) GetMetrics() (Metrics, error) {
+	res, err := getSensorMonitor(l.serverURL, l.mobileID)
 	if err != nil {
 		return Metrics{}, err
 	}
