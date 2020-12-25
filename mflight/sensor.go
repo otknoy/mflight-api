@@ -1,20 +1,26 @@
 package mflight
 
 import (
-	"errors"
 	"fmt"
 )
 
+// Temperature is value object
 type Temperature float32
+
+// Humidity is value object
 type Humidity float32
+
+// Illuminance is value object
 type Illuminance int16
 
+// Metrics has multiple sensor values
 type Metrics struct {
 	Temperature Temperature `xml:"temp"`
 	Humidity    Humidity    `xml:"humi"`
 	Illuminance Illuminance `xml:"illu"`
 }
 
+// Sensor is interface to get metrics
 type Sensor interface {
 	GetMetrics() (Metrics, error)
 }
@@ -24,10 +30,12 @@ type mfLightSensor struct {
 	mobileID  string
 }
 
-func NewMfLight(serverUrl, mobileID string) Sensor {
-	return &mfLightSensor{serverUrl, mobileID}
+// NewMfLight creates a new MfLight based on mflight server configuration
+func NewMfLight(serverURL, mobileID string) Sensor {
+	return &mfLightSensor{serverURL, mobileID}
 }
 
+// GetMetrics returns current Metrics
 func (l *mfLightSensor) GetMetrics() (Metrics, error) {
 	res, err := getSensorMonitor(l.serverURL, l.mobileID)
 	if err != nil {
@@ -37,7 +45,7 @@ func (l *mfLightSensor) GetMetrics() (Metrics, error) {
 	tables := res.Tables
 	last := len(tables) - 1
 	if last < 0 {
-		return Metrics{}, errors.New(fmt.Sprintf("invalid api response: %v", res))
+		return Metrics{}, fmt.Errorf("invalid api response: %v", res)
 	}
 
 	table := tables[last]
