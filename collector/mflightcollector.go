@@ -1,10 +1,10 @@
 package collector
 
 import (
+	"log"
 	"mflight-exporter/mflight"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 const (
@@ -54,7 +54,7 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	m, err := c.sensor.GetMetrics()
 	if err != nil {
-		log.Errorln(err)
+		log.Println(err)
 		return
 	}
 
