@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type Table struct {
+type table struct {
 	Id          int64   `xml:"id,attr"`
 	Time        string  `xml:"time"`
 	Unixtime    int64   `xml:"unixtime"`
@@ -16,31 +16,31 @@ type Table struct {
 	Illuminance int16   `xml:"illu"`
 }
 
-type Response struct {
-	Tables []Table `xml:"table"`
+type response struct {
+	Tables []table `xml:"table"`
 }
 
-func getSensorMonitor(baseUrl, mobileId string) (Response, error) {
+func getSensorMonitor(baseUrl, mobileId string) (response, error) {
 	url := buildURL(baseUrl, mobileId)
 
 	resp, err := http.Get(url)
 
 	if err != nil {
-		return Response{}, nil
+		return response{}, nil
 	}
 	defer resp.Body.Close()
 
 	byteArray, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Response{}, nil
+		return response{}, nil
 	}
 
-	response := Response{}
-	if err := xml.Unmarshal(byteArray, &response); err != nil {
-		return Response{}, nil
+	res := response{}
+	if err := xml.Unmarshal(byteArray, &res); err != nil {
+		return response{}, nil
 	}
 
-	return response, nil
+	return res, nil
 }
 
 func buildURL(baseURL, mobileId string) string {
