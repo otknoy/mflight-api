@@ -21,18 +21,9 @@ type Response struct {
 }
 
 func getSensorMonitor(baseUrl, mobileId string) (Response, error) {
-	qs := url.Values{
-		"x-KEY_MOBILE_ID":   []string{mobileId},
-		"x-KEY_UPDATE_DATE": []string{""},
-	}
+	url := buildURL(baseUrl, mobileId)
 
-	url := url.URL{
-		Host:     baseUrl,
-		Path:     "/SensorMonitorV2.xml",
-		RawQuery: qs.Encode(),
-	}
-
-	resp, err := http.Get(url.RequestURI())
+	resp, err := http.Get(url)
 
 	if err != nil {
 		return Response{}, nil
@@ -50,4 +41,18 @@ func getSensorMonitor(baseUrl, mobileId string) (Response, error) {
 	}
 
 	return response, nil
+}
+
+func buildURL(baseURL, mobileId string) string {
+	qs := url.Values{
+		"x-KEY_MOBILE_ID":   []string{mobileId},
+		"x-KEY_UPDATE_DATE": []string{""},
+	}
+
+	url := url.URL{
+		Path:     "/SensorMonitorV2.xml",
+		RawQuery: qs.Encode(),
+	}
+
+	return baseURL + url.RequestURI()
 }
