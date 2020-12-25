@@ -1,7 +1,6 @@
 package mflight
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -46,7 +45,7 @@ func (l *mfLightSensor) GetMetrics() (Metrics, error) {
 	tables := res.Tables
 	last := len(tables) - 1
 	if last < 0 {
-		return Metrics{}, errors.New(fmt.Sprintf("invalid api response: %v", res))
+		return Metrics{}, fmt.Errorf("invalid api response: %v", res)
 	}
 
 	table := tables[last]
