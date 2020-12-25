@@ -8,7 +8,7 @@ import (
 )
 
 type table struct {
-	Id          int64   `xml:"id,attr"`
+	ID          int64   `xml:"id,attr"`
 	Time        string  `xml:"time"`
 	Unixtime    int64   `xml:"unixtime"`
 	Temperature float32 `xml:"temp"`
@@ -20,8 +20,8 @@ type response struct {
 	Tables []table `xml:"table"`
 }
 
-func getSensorMonitor(baseUrl, mobileId string) (response, error) {
-	url := buildURL(baseUrl, mobileId)
+func getSensorMonitor(baseURL, mobileID string) (response, error) {
+	url := buildURL(baseURL, mobileID)
 
 	resp, err := http.Get(url)
 
@@ -43,9 +43,9 @@ func getSensorMonitor(baseUrl, mobileId string) (response, error) {
 	return res, nil
 }
 
-func buildURL(baseURL, mobileId string) string {
+func buildURL(baseURL, mobileID string) string {
 	qs := url.Values{
-		"x-KEY_MOBILE_ID":   []string{mobileId},
+		"x-KEY_MOBILE_ID":   []string{mobileID},
 		"x-KEY_UPDATE_DATE": []string{""},
 	}
 

@@ -24,8 +24,8 @@ type mfLightSensor struct {
 	mobileID  string
 }
 
-func NewMfLight(serverUrl, mobileID string) Sensor {
-	return &mfLightSensor{serverUrl, mobileID}
+func NewMfLight(serverURL, mobileID string) Sensor {
+	return &mfLightSensor{serverURL, mobileID}
 }
 
 func (l *mfLightSensor) GetMetrics() (Metrics, error) {
