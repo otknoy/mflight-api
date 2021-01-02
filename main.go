@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"mflight-exporter/collector"
 	"mflight-exporter/config"
-	"mflight-exporter/mflight"
+	"mflight-exporter/infrastructure/mflight"
+	"mflight-exporter/infrastructure/prometheus/collector"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,7 +18,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sensor := mflight.NewMfLight(c.MfLight.URL, c.MfLight.MobileID)
+	sensor := mflight.NewMfLightSensor(c.MfLight.URL, c.MfLight.MobileID)
 	col := collector.NewMfLightCollector(sensor)
 
 	prometheus.MustRegister(col)
