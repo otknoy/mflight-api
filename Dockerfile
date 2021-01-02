@@ -8,8 +8,8 @@ RUN go mod download
 
 COPY main.go .
 COPY config/ config/
-COPY mflight/ mflight/
-COPY collector/ collector/
+COPY domain/ domain/
+COPY infrastructure/ infrastructure/
 RUN CGO_ENABLED=0 go build -o mflight-exporter
 
 FROM scratch
