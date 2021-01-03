@@ -1,5 +1,6 @@
 package mflight
 
 var (
-	BuildURL = buildURL
+	GetSensorMonitor = getSensorMonitor
+	BuildURL         = buildURL
 )
