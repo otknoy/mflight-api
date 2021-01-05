@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"mflight-exporter/application"
 	"mflight-exporter/config"
 	"mflight-exporter/handler"
 	"mflight-exporter/infrastructure/mflight"
@@ -20,11 +21,12 @@ func main() {
 	}
 
 	sensor := mflight.NewMfLightSensor(c.MfLight.URL, c.MfLight.MobileID)
+	metricsCollector := application.NewMetricsCollector(sensor)
 
-	h := handler.NewSensorMetricsHandler(sensor)
+	h := handler.NewSensorMetricsHandler(metricsCollector)
 	http.Handle("/getSensorMetrics", h)
 
-	col := collector.NewMfLightCollector(sensor)
+	col := collector.NewMfLightCollector(metricsCollector)
 	prometheus.MustRegister(col)
 	http.Handle("/metrics", promhttp.Handler())
 

@@ -2,23 +2,23 @@ package handler
 
 import (
 	"fmt"
-	"mflight-exporter/domain"
+	"mflight-exporter/application"
 	"net/http"
 )
 
 // SensorMetricsHandler is struct to get sensor metrics
 type SensorMetricsHandler struct {
-	sensor domain.Sensor
+	metricsCollector application.MetricsCollector
 }
 
 // NewSensorMetricsHandler creates a new SensorMetricsHandler based on domain.Sensor
-func NewSensorMetricsHandler(sensor domain.Sensor) *SensorMetricsHandler {
-	return &SensorMetricsHandler{sensor}
+func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandler {
+	return &SensorMetricsHandler{c}
 }
 
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m, err := h.sensor.GetMetrics()
+	m, err := h.metricsCollector.CollectMetrics()
 
 	w.Header().Set("Content-Type", "application/json")
 
