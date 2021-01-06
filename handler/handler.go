@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"mflight-exporter/application"
+	"mflight-api/application"
 	"net/http"
 )
 

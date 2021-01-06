@@ -1,4 +1,4 @@
-module mflight-exporter
+module mflight-api
 
 go 1.15
 

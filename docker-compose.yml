@@ -1,6 +1,6 @@
 version: '2'
 services:
-  mflight-exporter:
+  mflight-api:
     build: .
     ports:
       - 5001:5000

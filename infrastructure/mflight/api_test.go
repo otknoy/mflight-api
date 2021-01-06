@@ -1,7 +1,7 @@
 package mflight_test
 
 import (
-	"mflight-exporter/infrastructure/mflight"
+	"mflight-api/infrastructure/mflight"
 	"testing"
 )
 

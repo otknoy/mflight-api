@@ -1,8 +1,8 @@
 package application_test
 
 import (
-	"mflight-exporter/application"
-	"mflight-exporter/domain"
+	"mflight-api/application"
+	"mflight-api/domain"
 	"testing"
 )
 
