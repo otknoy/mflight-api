@@ -2,7 +2,7 @@ package collector
 
 import (
 	"log"
-	"mflight-exporter/domain"
+	"mflight-exporter/application"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -34,13 +34,13 @@ type MfLightCollector interface {
 	prometheus.Collector
 }
 
-// NewMfLightCollector create a new MfLightCollector based on the provided Sensor
-func NewMfLightCollector(sensor domain.Sensor) prometheus.Collector {
-	return &collector{sensor}
+// NewMfLightCollector create a new MfLightCollector based on the provided MetricsCollector
+func NewMfLightCollector(c application.MetricsCollector) prometheus.Collector {
+	return &collector{c}
 }
 
 type collector struct {
-	sensor domain.Sensor
+	metricsCollector application.MetricsCollector
 }
 
 // Describe implements Collector
@@ -52,7 +52,7 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements Collector
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
-	m, err := c.sensor.GetMetrics()
+	m, err := c.metricsCollector.CollectMetrics()
 	if err != nil {
 		log.Println(err)
 		return
