@@ -1,6 +1,6 @@
 package application
 
-import "mflight-exporter/domain"
+import "mflight-api/domain"
 
 // MetricsCollector is interface to collect metrics
 type MetricsCollector interface {

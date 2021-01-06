@@ -2,7 +2,7 @@ package collector
 
 import (
 	"log"
-	"mflight-exporter/application"
+	"mflight-api/application"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

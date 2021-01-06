@@ -2,7 +2,7 @@ package mflight
 
 import (
 	"fmt"
-	"mflight-exporter/domain"
+	"mflight-api/domain"
 )
 
 type mfLightSensor struct {

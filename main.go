@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"mflight-exporter/application"
-	"mflight-exporter/config"
-	"mflight-exporter/handler"
-	"mflight-exporter/infrastructure/mflight"
-	"mflight-exporter/infrastructure/prometheus/collector"
+	"mflight-api/application"
+	"mflight-api/config"
+	"mflight-api/handler"
+	"mflight-api/infrastructure/mflight"
+	"mflight-api/infrastructure/prometheus/collector"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"

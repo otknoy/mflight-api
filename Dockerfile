@@ -12,8 +12,8 @@ COPY domain/ domain/
 COPY application/ application/
 COPY handler/ handler/
 COPY infrastructure/ infrastructure/
-RUN CGO_ENABLED=0 go build -o mflight-exporter
+RUN CGO_ENABLED=0 go build -o mflight-api
 
 FROM scratch
-COPY --from=builder /app/mflight-exporter /bin/mflight-exporter
-ENTRYPOINT ["/bin/mflight-exporter"]
+COPY --from=builder /app/mflight-api /bin/mflight-api
+ENTRYPOINT ["/bin/mflight-api"]
