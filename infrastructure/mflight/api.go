@@ -49,10 +49,9 @@ func buildURL(baseURL, mobileID string) string {
 		"x-KEY_UPDATE_DATE": []string{""},
 	}
 
-	url := url.URL{
-		Path:     "/SensorMonitorV2.xml",
-		RawQuery: qs.Encode(),
-	}
+	url, _ := url.Parse(baseURL)
+	url.Path = "/SensorMonitorV2.xml"
+	url.RawQuery = qs.Encode()
 
-	return baseURL + url.RequestURI()
+	return url.String()
 }
