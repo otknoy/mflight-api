@@ -4,6 +4,8 @@ import (
 	"mflight-api/application"
 	"mflight-api/domain"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 type stubSensor struct{}
@@ -21,10 +23,13 @@ func TestCollectMetrics(t *testing.T) {
 
 	m, _ := c.CollectMetrics()
 
-	if m.Temperature != 18.0 ||
-		m.Humidity != 45.0 ||
-		m.Illuminance != 300 {
+	want := domain.Metrics{
+		Temperature: 18.0,
+		Humidity:    45.0,
+		Illuminance: 300,
+	}
 
-		t.Errorf("returned metrics is invalid: %v\n", m)
+	if diff := cmp.Diff(want, m); diff != "" {
+		t.Errorf("returned metrics differs\n%s", diff)
 	}
 }
