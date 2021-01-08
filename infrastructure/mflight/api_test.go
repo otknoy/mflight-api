@@ -3,6 +3,8 @@ package mflight_test
 import (
 	"mflight-api/infrastructure/mflight"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestGetSensorMonitor(t *testing.T) {
@@ -33,7 +35,7 @@ func TestBuildURL(t *testing.T) {
 
 	want := "http://example.com:8080/SensorMonitorV2.xml?x-KEY_MOBILE_ID=test-mobile-id&x-KEY_UPDATE_DATE="
 
-	if url != want {
-		t.Errorf("\n%v\n%v\n", url, want)
+	if diff := cmp.Diff(want, url); diff != "" {
+		t.Errorf("url differs\n%s", diff)
 	}
 }
