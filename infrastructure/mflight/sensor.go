@@ -6,29 +6,27 @@ import (
 )
 
 type mfLightSensor struct {
-	serverURL string
-	mobileID  string
+	client Client
 }
 
-// NewMfLightSensor creates a new MfLight based on mflight server configuration
-func NewMfLightSensor(serverURL, mobileID string) domain.Sensor {
-	return &mfLightSensor{serverURL, mobileID}
+// NewMfLightSensor creates a new MfLight based on mflight.Client
+func NewMfLightSensor(c Client) domain.Sensor {
+	return &mfLightSensor{c}
 }
 
 // GetMetrics returns current Metrics
 func (l *mfLightSensor) GetMetrics() (domain.Metrics, error) {
-	res, err := getSensorMonitor(l.serverURL, l.mobileID)
+	res, err := l.client.GetSensorMonitor()
 	if err != nil {
 		return domain.Metrics{}, err
 	}
 
-	tables := res.Tables
-	last := len(tables) - 1
+	last := len(res.Tables) - 1
 	if last < 0 {
 		return domain.Metrics{}, fmt.Errorf("invalid api response: %v", res)
 	}
 
-	table := tables[last]
+	table := res.Tables[len(res.Tables)-1]
 
 	m := domain.Metrics{
 		Temperature: domain.Temperature(table.Temperature),
