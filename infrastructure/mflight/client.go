@@ -17,7 +17,7 @@ type Response struct {
 	Tables []Table `xml:"table"`
 }
 
-// Table is struct to represent table XML element.
+// Table is struct to represent <table /> XML element.
 type Table struct {
 	ID          int64   `xml:"id,attr"`
 	Time        string  `xml:"time"`
@@ -27,7 +27,7 @@ type Table struct {
 	Illuminance int16   `xml:"illu"`
 }
 
-// NewClient creates a new MfLightClient.
+// NewClient creates a new Client.
 func NewClient(baseURL, mobileID string) Client {
 	return &client{baseURL, mobileID}
 }
