@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type table struct {
+type Table struct {
 	ID          int64   `xml:"id,attr"`
 	Time        string  `xml:"time"`
 	Unixtime    int64   `xml:"unixtime"`
@@ -16,28 +16,41 @@ type table struct {
 	Illuminance int16   `xml:"illu"`
 }
 
-type response struct {
-	Tables []table `xml:"table"`
+type Response struct {
+	Tables []Table `xml:"table"`
 }
 
-func getSensorMonitor(baseURL, mobileID string) (response, error) {
-	url := buildURL(baseURL, mobileID)
+type MfLightClient interface {
+	GetSensorMonitor() (*Response, error)
+}
+
+func NewMfLightClient(baseURL, mobileID string) MfLightClient {
+	return &mfLightClient{baseURL, mobileID}
+}
+
+type mfLightClient struct {
+	baseURL  string
+	mobileID string
+}
+
+func (c *mfLightClient) GetSensorMonitor() (*Response, error) {
+	url := buildURL(c.baseURL, c.mobileID)
 
 	resp, err := http.Get(url)
 
 	if err != nil {
-		return response{}, nil
+		return &Response{}, nil
 	}
 	defer resp.Body.Close()
 
 	byteArray, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return response{}, nil
+		return &Response{}, nil
 	}
 
-	res := response{}
+	res := &Response{}
 	if err := xml.Unmarshal(byteArray, &res); err != nil {
-		return response{}, nil
+		return &Response{}, nil
 	}
 
 	return res, nil

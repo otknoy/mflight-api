@@ -11,7 +11,8 @@ func TestGetSensorMonitor(t *testing.T) {
 	s := NewStubServer(t)
 	defer s.Close()
 
-	res, err := mflight.GetSensorMonitor(s.URL, "test-mobile-id")
+	c := mflight.NewMfLightClient(s.URL, "test-mobile-id")
+	res, err := c.GetSensorMonitor()
 	if err != nil {
 		t.Fatal(err)
 	}

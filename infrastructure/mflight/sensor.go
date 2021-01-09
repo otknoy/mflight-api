@@ -6,18 +6,19 @@ import (
 )
 
 type mfLightSensor struct {
-	serverURL string
-	mobileID  string
+	client MfLightClient
 }
 
 // NewMfLightSensor creates a new MfLight based on mflight server configuration
 func NewMfLightSensor(serverURL, mobileID string) domain.Sensor {
-	return &mfLightSensor{serverURL, mobileID}
+	return &mfLightSensor{
+		NewMfLightClient(serverURL, mobileID),
+	}
 }
 
 // GetMetrics returns current Metrics
 func (l *mfLightSensor) GetMetrics() (domain.Metrics, error) {
-	res, err := getSensorMonitor(l.serverURL, l.mobileID)
+	res, err := l.client.GetSensorMonitor()
 	if err != nil {
 		return domain.Metrics{}, err
 	}
