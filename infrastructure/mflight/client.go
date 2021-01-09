@@ -7,6 +7,17 @@ import (
 	"net/url"
 )
 
+// Client is http client interface to get metrics.
+type Client interface {
+	GetSensorMonitor() (*Response, error)
+}
+
+// Response is struct to represent root XML element in mflight response.
+type Response struct {
+	Tables []Table `xml:"table"`
+}
+
+// Table is struct to represent table XML element.
 type Table struct {
 	ID          int64   `xml:"id,attr"`
 	Time        string  `xml:"time"`
@@ -16,24 +27,18 @@ type Table struct {
 	Illuminance int16   `xml:"illu"`
 }
 
-type Response struct {
-	Tables []Table `xml:"table"`
+// NewClient creates a new MfLightClient.
+func NewClient(baseURL, mobileID string) Client {
+	return &client{baseURL, mobileID}
 }
 
-type MfLightClient interface {
-	GetSensorMonitor() (*Response, error)
-}
-
-func NewMfLightClient(baseURL, mobileID string) MfLightClient {
-	return &mfLightClient{baseURL, mobileID}
-}
-
-type mfLightClient struct {
+type client struct {
 	baseURL  string
 	mobileID string
 }
 
-func (c *mfLightClient) GetSensorMonitor() (*Response, error) {
+// GetSensorMonitor returns mflight response.
+func (c *client) GetSensorMonitor() (*Response, error) {
 	url := buildURL(c.baseURL, c.mobileID)
 
 	resp, err := http.Get(url)

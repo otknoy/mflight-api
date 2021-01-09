@@ -6,13 +6,13 @@ import (
 )
 
 type mfLightSensor struct {
-	client MfLightClient
+	client Client
 }
 
 // NewMfLightSensor creates a new MfLight based on mflight server configuration
 func NewMfLightSensor(serverURL, mobileID string) domain.Sensor {
 	return &mfLightSensor{
-		NewMfLightClient(serverURL, mobileID),
+		NewClient(serverURL, mobileID),
 	}
 }
 
