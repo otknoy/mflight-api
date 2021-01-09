@@ -1,6 +1,7 @@
 package mflight_test
 
 import (
+	"errors"
 	"mflight-api/domain"
 	"mflight-api/infrastructure/mflight"
 	"testing"
@@ -50,5 +51,43 @@ func TestGetMetrics(t *testing.T) {
 	}
 	if diff := cmp.Diff(want, m); diff != "" {
 		t.Errorf("returned metrics differs\n%s", diff)
+	}
+}
+
+func TestGetMetrics_when_empty_response(t *testing.T) {
+	c := &stubClient{
+		func() (*mflight.Response, error) {
+			return &mflight.Response{}, nil
+		},
+	}
+
+	sensor := mflight.NewMfLightSensor(c)
+
+	m, err := sensor.GetMetrics()
+	if err == nil {
+		t.Fatal(err)
+	}
+
+	if diff := cmp.Diff(domain.Metrics{}, m); diff != "" {
+		t.Errorf("returned metrics is not empty\n%s", diff)
+	}
+}
+
+func TestGetMetrics_when_request_failure(t *testing.T) {
+	c := &stubClient{
+		func() (*mflight.Response, error) {
+			return &mflight.Response{}, errors.New("test")
+		},
+	}
+
+	sensor := mflight.NewMfLightSensor(c)
+
+	m, err := sensor.GetMetrics()
+	if err == nil {
+		t.Fatal(err)
+	}
+
+	if diff := cmp.Diff(domain.Metrics{}, m); diff != "" {
+		t.Errorf("returned metrics is not empty\n%s", diff)
 	}
 }
