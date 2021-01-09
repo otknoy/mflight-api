@@ -20,7 +20,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sensor := mflight.NewMfLightSensor(c.MfLight.URL, c.MfLight.MobileID)
+	sensor := mflight.NewMfLightSensor(
+		mflight.NewClient(c.MfLight.URL, c.MfLight.MobileID),
+	)
 	metricsCollector := application.NewMetricsCollector(sensor)
 
 	h := handler.NewSensorMetricsHandler(metricsCollector)

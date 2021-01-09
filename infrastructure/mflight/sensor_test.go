@@ -1,28 +1,48 @@
 package mflight_test
 
 import (
+	"mflight-api/domain"
 	"mflight-api/infrastructure/mflight"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-func TestGetMetrics(t *testing.T) {
-	s := NewStubServer(t)
-	defer s.Close()
+type stubClient struct{}
 
-	sensor := mflight.NewMfLightSensor(s.URL, "test-mobile-id")
+func (c *stubClient) GetSensorMonitor() (*mflight.Response, error) {
+	return &mflight.Response{
+		Tables: []mflight.Table{
+			{
+				Temperature: 25.4,
+				Humidity:    65.7,
+				Illuminance: 234,
+			},
+			{
+				Temperature: 21.9,
+				Humidity:    43.0,
+				Illuminance: 406,
+			},
+		},
+	}, nil
+}
+
+func TestGetMetrics(t *testing.T) {
+	sensor := mflight.NewMfLightSensor(
+		&stubClient{},
+	)
 
 	m, err := sensor.GetMetrics()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if v := m.Temperature; v != 21.9 {
-		t.Errorf("invalid temperature: %v\n", v)
+	want := domain.Metrics{
+		Temperature: 21.9,
+		Humidity:    43.0,
+		Illuminance: 406,
 	}
-	if v := m.Humidity; v != 43.0 {
-		t.Errorf("invalid humidity: %v\n", v)
-	}
-	if v := m.Illuminance; v != 406 {
-		t.Errorf("invalid illuminance: %v\n", v)
+	if diff := cmp.Diff(want, m); diff != "" {
+		t.Errorf("returned metrics differs\n%s", diff)
 	}
 }

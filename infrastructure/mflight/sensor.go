@@ -9,11 +9,9 @@ type mfLightSensor struct {
 	client Client
 }
 
-// NewMfLightSensor creates a new MfLight based on mflight server configuration
-func NewMfLightSensor(serverURL, mobileID string) domain.Sensor {
-	return &mfLightSensor{
-		NewClient(serverURL, mobileID),
-	}
+// NewMfLightSensor creates a new MfLight based on mflight.Client
+func NewMfLightSensor(c Client) domain.Sensor {
+	return &mfLightSensor{c}
 }
 
 // GetMetrics returns current Metrics
