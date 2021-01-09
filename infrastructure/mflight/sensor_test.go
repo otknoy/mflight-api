@@ -8,29 +8,35 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-type stubClient struct{}
+type stubClient struct {
+	stubGetSensorMonitor func() (*mflight.Response, error)
+}
 
 func (c *stubClient) GetSensorMonitor() (*mflight.Response, error) {
-	return &mflight.Response{
-		Tables: []mflight.Table{
-			{
-				Temperature: 25.4,
-				Humidity:    65.7,
-				Illuminance: 234,
-			},
-			{
-				Temperature: 21.9,
-				Humidity:    43.0,
-				Illuminance: 406,
-			},
-		},
-	}, nil
+	return c.stubGetSensorMonitor()
 }
 
 func TestGetMetrics(t *testing.T) {
-	sensor := mflight.NewMfLightSensor(
-		&stubClient{},
-	)
+	c := &stubClient{
+		func() (*mflight.Response, error) {
+			return &mflight.Response{
+				Tables: []mflight.Table{
+					{
+						Temperature: 25.4,
+						Humidity:    65.7,
+						Illuminance: 234,
+					},
+					{
+						Temperature: 21.9,
+						Humidity:    43.0,
+						Illuminance: 406,
+					},
+				},
+			}, nil
+		},
+	}
+
+	sensor := mflight.NewMfLightSensor(c)
 
 	m, err := sensor.GetMetrics()
 	if err != nil {
