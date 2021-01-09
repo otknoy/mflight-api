@@ -21,13 +21,12 @@ func (l *mfLightSensor) GetMetrics() (domain.Metrics, error) {
 		return domain.Metrics{}, err
 	}
 
-	tables := res.Tables
-	last := len(tables) - 1
+	last := len(res.Tables) - 1
 	if last < 0 {
 		return domain.Metrics{}, fmt.Errorf("invalid api response: %v", res)
 	}
 
-	table := tables[last]
+	table := res.Tables[len(res.Tables)-1]
 
 	m := domain.Metrics{
 		Temperature: domain.Temperature(table.Temperature),
