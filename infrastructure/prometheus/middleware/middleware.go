@@ -47,21 +47,3 @@ func (m *middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	elappsed := time.Since(start)
 	httpReq.Observe(float64(elappsed))
 }
-
-type statusRecoder struct {
-	status int
-	w      http.ResponseWriter
-}
-
-func (r *statusRecoder) Header() http.Header {
-	return r.w.Header()
-}
-
-func (r *statusRecoder) Write(bytes []byte) (int, error) {
-	return r.w.Write(bytes)
-}
-
-func (r *statusRecoder) WriteHeader(statusCode int) {
-	r.status = statusCode
-	r.w.WriteHeader(statusCode)
-}
