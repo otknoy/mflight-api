@@ -9,6 +9,7 @@ import (
 	"mflight-api/handler"
 	"mflight-api/infrastructure/mflight"
 	"mflight-api/infrastructure/prometheus/collector"
+	"mflight-api/infrastructure/prometheus/middleware"
 	"net/http"
 	"os"
 	"os/signal"
@@ -34,8 +35,8 @@ func main() {
 	prometheus.MustRegister(col)
 
 	mux := http.NewServeMux()
-	mux.Handle("/getSensorMetrics", h)
-	mux.Handle("/metrics", promhttp.Handler())
+	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
+	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", c.Port),
