@@ -44,7 +44,7 @@ func (m *middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("response: %v\n", wr.status)
 
-	elappsed := time.Now().Sub(start)
+	elappsed := time.Since(start)
 	httpReq.Observe(float64(elappsed))
 }
 
