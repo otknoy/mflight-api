@@ -7,6 +7,13 @@ type statusRecoder struct {
 	w      http.ResponseWriter
 }
 
+func newStatusRecoder(w http.ResponseWriter) *statusRecoder {
+	return &statusRecoder{
+		status: 0,
+		w:      w,
+	}
+}
+
 func (r *statusRecoder) Header() http.Header {
 	return r.w.Header()
 }

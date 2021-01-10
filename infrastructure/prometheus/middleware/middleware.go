@@ -35,10 +35,7 @@ func (m *middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("request: %v\n", r.URL.Path)
 
-	wr := &statusRecoder{
-		status: 0,
-		w:      w,
-	}
+	wr := newStatusRecoder(w)
 
 	m.h.ServeHTTP(wr, r)
 
