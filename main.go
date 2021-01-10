@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"mflight-api/application"
@@ -9,6 +10,8 @@ import (
 	"mflight-api/infrastructure/mflight"
 	"mflight-api/infrastructure/prometheus/collector"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -26,11 +29,33 @@ func main() {
 	metricsCollector := application.NewMetricsCollector(sensor)
 
 	h := handler.NewSensorMetricsHandler(metricsCollector)
-	http.Handle("/getSensorMetrics", h)
 
 	col := collector.NewMfLightCollector(metricsCollector)
 	prometheus.MustRegister(col)
-	http.Handle("/metrics", promhttp.Handler())
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", c.Port), nil))
+	mux := http.NewServeMux()
+	mux.Handle("/getSensorMetrics", h)
+	mux.Handle("/metrics", promhttp.Handler())
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", c.Port),
+		Handler: mux,
+	}
+
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Printf("HTTP server Shutdown: %v", err)
+		}
+
+		close(idleConnsClosed)
+	}()
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		log.Fatalf("HTTP server ListenAndServe: %v", err)
+	}
+	<-idleConnsClosed
 }
