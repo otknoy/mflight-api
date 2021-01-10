@@ -4,29 +4,21 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/prometheus/client_golang/prometheus"
 )
-
-var (
-	httpReq = prometheus.NewSummary(prometheus.SummaryOpts{
-		Name: "http_requests_seconds",
-	})
-)
-
-func init() {
-	prometheus.MustRegister(httpReq)
-}
 
 type HandlerMetricsMiddleware interface {
 	http.Handler
 }
 
 func NewHandlerMetricsMiddleware(h http.Handler) HandlerMetricsMiddleware {
-	return &middleware{h}
+	return &middleware{
+		s: make(summaries),
+		h: h,
+	}
 }
 
 type middleware struct {
+	s summaries
 	h http.Handler
 }
 
@@ -42,5 +34,7 @@ func (m *middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("response: %v\n", wr.status)
 
 	elappsed := time.Since(start)
-	httpReq.Observe(float64(elappsed))
+
+	s := m.s.Get(r.Method, r.URL.Path, wr.status)
+	s.Observe(float64(elappsed))
 }
