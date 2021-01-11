@@ -29,5 +29,5 @@ func (m *middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	elappsed := time.Since(start)
 
 	s := m.s.Get(r.Method, r.URL.Path, wr.status)
-	s.Observe(float64(elappsed))
+	s.Observe(elappsed.Seconds())
 }
