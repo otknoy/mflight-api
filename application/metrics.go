@@ -1,10 +1,13 @@
 package application
 
-import "mflight-api/domain"
+import (
+	"context"
+	"mflight-api/domain"
+)
 
 // MetricsCollector is interface to collect metrics
 type MetricsCollector interface {
-	CollectMetrics() (domain.Metrics, error)
+	CollectMetrics(ctx context.Context) (domain.Metrics, error)
 }
 
 // NewMetricsCollector creates a new MetricsCollector Based on domain.Sensor
@@ -17,6 +20,6 @@ type metricsCollector struct {
 }
 
 // CollectMetrics returns collected metrics
-func (c *metricsCollector) CollectMetrics() (domain.Metrics, error) {
-	return c.sensor.GetMetrics()
+func (c *metricsCollector) CollectMetrics(ctx context.Context) (domain.Metrics, error) {
+	return c.sensor.GetMetrics(ctx)
 }

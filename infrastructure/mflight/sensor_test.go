@@ -1,6 +1,7 @@
 package mflight_test
 
 import (
+	"context"
 	"errors"
 	"mflight-api/domain"
 	"mflight-api/infrastructure/mflight"
@@ -10,16 +11,16 @@ import (
 )
 
 type stubClient struct {
-	stubGetSensorMonitor func() (*mflight.Response, error)
+	stubGetSensorMonitor func(context.Context) (*mflight.Response, error)
 }
 
-func (c *stubClient) GetSensorMonitor() (*mflight.Response, error) {
-	return c.stubGetSensorMonitor()
+func (c *stubClient) GetSensorMonitor(ctx context.Context) (*mflight.Response, error) {
+	return c.stubGetSensorMonitor(ctx)
 }
 
 func TestGetMetrics(t *testing.T) {
 	c := &stubClient{
-		func() (*mflight.Response, error) {
+		func(ctx context.Context) (*mflight.Response, error) {
 			return &mflight.Response{
 				Tables: []mflight.Table{
 					{
@@ -39,7 +40,7 @@ func TestGetMetrics(t *testing.T) {
 
 	sensor := mflight.NewMfLightSensor(c)
 
-	m, err := sensor.GetMetrics()
+	m, err := sensor.GetMetrics(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,14 +57,14 @@ func TestGetMetrics(t *testing.T) {
 
 func TestGetMetrics_when_empty_response(t *testing.T) {
 	c := &stubClient{
-		func() (*mflight.Response, error) {
+		func(context.Context) (*mflight.Response, error) {
 			return &mflight.Response{}, nil
 		},
 	}
 
 	sensor := mflight.NewMfLightSensor(c)
 
-	m, err := sensor.GetMetrics()
+	m, err := sensor.GetMetrics(context.Background())
 	if err == nil {
 		t.Fatal(err)
 	}
@@ -75,14 +76,14 @@ func TestGetMetrics_when_empty_response(t *testing.T) {
 
 func TestGetMetrics_when_request_failure(t *testing.T) {
 	c := &stubClient{
-		func() (*mflight.Response, error) {
+		func(context.Context) (*mflight.Response, error) {
 			return &mflight.Response{}, errors.New("test")
 		},
 	}
 
 	sensor := mflight.NewMfLightSensor(c)
 
-	m, err := sensor.GetMetrics()
+	m, err := sensor.GetMetrics(context.Background())
 	if err == nil {
 		t.Fatal(err)
 	}

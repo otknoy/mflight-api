@@ -1,6 +1,7 @@
 package mflight_test
 
 import (
+	"context"
 	"mflight-api/infrastructure/mflight"
 	"testing"
 
@@ -12,7 +13,7 @@ func TestGetSensorMonitor(t *testing.T) {
 	defer s.Close()
 
 	c := mflight.NewClient(s.URL, "test-mobile-id")
-	res, err := c.GetSensorMonitor()
+	res, err := c.GetSensorMonitor(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,12 +32,12 @@ func TestGetSensorMonitor(t *testing.T) {
 	}
 }
 
-func TestBuildURL(t *testing.T) {
-	url := mflight.BuildURL("http://example.com:8080", "test-mobile-id")
+func TestRequestWithContext(t *testing.T) {
+	r := mflight.BuildRequestWithContext(context.Background(), "http://example.com:8080", "test-mobile-id")
 
 	want := "http://example.com:8080/SensorMonitorV2.xml?x-KEY_MOBILE_ID=test-mobile-id&x-KEY_UPDATE_DATE="
 
-	if diff := cmp.Diff(want, url); diff != "" {
-		t.Errorf("url differs\n%s", diff)
+	if diff := cmp.Diff(want, r.URL.String()); diff != "" {
+		t.Errorf("request differs\n%s", diff)
 	}
 }

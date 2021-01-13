@@ -1,6 +1,7 @@
 package application_test
 
 import (
+	"context"
 	"mflight-api/application"
 	"mflight-api/domain"
 	"testing"
@@ -10,7 +11,7 @@ import (
 
 type stubSensor struct{}
 
-func (s *stubSensor) GetMetrics() (domain.Metrics, error) {
+func (s *stubSensor) GetMetrics(ctx context.Context) (domain.Metrics, error) {
 	return domain.Metrics{
 		Temperature: domain.Temperature(18.0),
 		Humidity:    domain.Humidity(45.0),
@@ -21,7 +22,7 @@ func (s *stubSensor) GetMetrics() (domain.Metrics, error) {
 func TestCollectMetrics(t *testing.T) {
 	c := application.NewMetricsCollector(&stubSensor{})
 
-	m, _ := c.CollectMetrics()
+	m, _ := c.CollectMetrics(context.Background())
 
 	want := domain.Metrics{
 		Temperature: 18.0,
