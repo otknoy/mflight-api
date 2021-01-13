@@ -18,7 +18,7 @@ func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandl
 
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m, err := h.metricsCollector.CollectMetrics()
+	m, err := h.metricsCollector.CollectMetrics(r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
 

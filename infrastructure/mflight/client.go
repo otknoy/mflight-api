@@ -1,6 +1,7 @@
 package mflight
 
 import (
+	"context"
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 
 // Client is http client interface to get metrics.
 type Client interface {
-	GetSensorMonitor() (*Response, error)
+	GetSensorMonitor(ctx context.Context) (*Response, error)
 }
 
 // Response is struct to represent root XML element in mflight response.
@@ -38,11 +39,10 @@ type client struct {
 }
 
 // GetSensorMonitor returns mflight response.
-func (c *client) GetSensorMonitor() (*Response, error) {
-	url := buildURL(c.baseURL, c.mobileID)
+func (c *client) GetSensorMonitor(ctx context.Context) (*Response, error) {
+	r := buildRequestWithContext(ctx, c.baseURL, c.mobileID)
 
-	resp, err := http.Get(url)
-
+	resp, err := http.DefaultClient.Do(r)
 	if err != nil {
 		return &Response{}, nil
 	}
@@ -61,15 +61,15 @@ func (c *client) GetSensorMonitor() (*Response, error) {
 	return res, nil
 }
 
-func buildURL(baseURL, mobileID string) string {
+func buildRequestWithContext(ctx context.Context, baseURL, mobileID string) *http.Request {
 	qs := url.Values{
 		"x-KEY_MOBILE_ID":   []string{mobileID},
 		"x-KEY_UPDATE_DATE": []string{""},
 	}
 
-	url, _ := url.Parse(baseURL)
-	url.Path = "/SensorMonitorV2.xml"
-	url.RawQuery = qs.Encode()
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, baseURL, nil)
+	req.URL.Path = "/SensorMonitorV2.xml"
+	req.URL.RawQuery = qs.Encode()
 
-	return url.String()
+	return req
 }

@@ -1,8 +1,11 @@
 package collector
 
 import (
+	"context"
 	"log"
 	"mflight-api/application"
+	"mflight-api/domain"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -52,25 +55,39 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements Collector
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
-	m, err := c.metricsCollector.CollectMetrics()
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
 
-	ch <- prometheus.MustNewConstMetric(
-		temperatureGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Temperature),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		humidityGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Humidity),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		illuminanceGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Illuminance),
-	)
+	mch := make(chan domain.Metrics)
+	go func() {
+		m, err := c.metricsCollector.CollectMetrics(ctx)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		mch <- m
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Println("timeout: ", ctx.Err())
+	case m := <-mch:
+		ch <- prometheus.MustNewConstMetric(
+			temperatureGauge.Desc(),
+			prometheus.GaugeValue,
+			float64(m.Temperature),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			humidityGauge.Desc(),
+			prometheus.GaugeValue,
+			float64(m.Humidity),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			illuminanceGauge.Desc(),
+			prometheus.GaugeValue,
+			float64(m.Illuminance),
+		)
+	}
 }

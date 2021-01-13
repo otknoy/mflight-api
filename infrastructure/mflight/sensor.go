@@ -1,6 +1,7 @@
 package mflight
 
 import (
+	"context"
 	"fmt"
 	"mflight-api/domain"
 )
@@ -15,8 +16,8 @@ func NewMfLightSensor(c Client) domain.Sensor {
 }
 
 // GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics() (domain.Metrics, error) {
-	res, err := l.client.GetSensorMonitor()
+func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.Metrics, error) {
+	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
 		return domain.Metrics{}, err
 	}

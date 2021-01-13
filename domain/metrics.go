@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 // Temperature is value object
 type Temperature float32
 
@@ -18,5 +20,5 @@ type Metrics struct {
 
 // Sensor is interface to get metrics
 type Sensor interface {
-	GetMetrics() (Metrics, error)
+	GetMetrics(ctx context.Context) (Metrics, error)
 }

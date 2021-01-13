@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"errors"
 	"mflight-api/domain"
 	"mflight-api/handler"
@@ -10,11 +11,11 @@ import (
 )
 
 type stubMetricsCollector struct {
-	StubCollectMetrics func() (domain.Metrics, error)
+	StubCollectMetrics func(context.Context) (domain.Metrics, error)
 }
 
-func (s *stubMetricsCollector) CollectMetrics() (domain.Metrics, error) {
-	return s.StubCollectMetrics()
+func (s *stubMetricsCollector) CollectMetrics(ctx context.Context) (domain.Metrics, error) {
+	return s.StubCollectMetrics(ctx)
 }
 
 func TestServeHTTP(t *testing.T) {
@@ -24,7 +25,7 @@ func TestServeHTTP(t *testing.T) {
 	want := `{"temperature": 20.0, "humidity": 50.0, "illuminance": 400}`
 
 	h := handler.NewSensorMetricsHandler(&stubMetricsCollector{
-		func() (domain.Metrics, error) {
+		func(context.Context) (domain.Metrics, error) {
 			return domain.Metrics{
 				Temperature: domain.Temperature(20.0),
 				Humidity:    domain.Humidity(50.0),
@@ -48,7 +49,7 @@ func TestServeHTTP_sensor_error(t *testing.T) {
 	got := httptest.NewRecorder()
 
 	h := handler.NewSensorMetricsHandler(&stubMetricsCollector{
-		func() (domain.Metrics, error) {
+		func(context.Context) (domain.Metrics, error) {
 			return domain.Metrics{}, errors.New("failed to get metrics")
 		},
 	})
