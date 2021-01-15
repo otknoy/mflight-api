@@ -18,17 +18,28 @@ func TestGetSensorMonitor(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len := len(res.Tables); len != 2 {
-		t.Errorf("table length expect 2, but %d\n", len)
+	want := &mflight.Response{
+		Tables: []mflight.Table{
+			{
+				ID:          67243,
+				Time:        "202101030000",
+				Unixtime:    1609599600,
+				Temperature: 22.0,
+				Humidity:    43.3,
+				Illuminance: 405,
+			},
+			{
+				ID:          67244,
+				Time:        "202101030005",
+				Unixtime:    1609599900,
+				Temperature: 21.9,
+				Humidity:    43.0,
+				Illuminance: 406,
+			},
+		},
 	}
-	if v := res.Tables[0].Temperature; v != 22.0 {
-		t.Errorf("invalid temperature: %v\n", v)
-	}
-	if v := res.Tables[0].Humidity; v != 43.3 {
-		t.Errorf("invalid humidity: %v\n", v)
-	}
-	if v := res.Tables[0].Illuminance; v != 405 {
-		t.Errorf("invalid illuminance: %v\n", v)
+	if diff := cmp.Diff(want, res); diff != "" {
+		t.Errorf("response differs.\n%v", diff)
 	}
 }
 
