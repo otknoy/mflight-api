@@ -19,7 +19,7 @@ func NewStubServer(t *testing.T, response string) *httptest.Server {
 			t.Fatal(qs)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/xml")
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, response)
 	}))
