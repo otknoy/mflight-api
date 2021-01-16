@@ -43,6 +43,19 @@ func TestGetSensorMonitor(t *testing.T) {
 	}
 }
 
+func TestGetSensorMonitor_network_error(t *testing.T) {
+	c := mflight.NewClient("http://hoge.test", "dummy-mobile-id")
+
+	res, err := c.GetSensorMonitor(context.Background())
+
+	if err != nil {
+		t.Errorf("should return error.")
+	}
+	if len(res.Tables) != 0 {
+		t.Errorf("shoud return empty response.")
+	}
+}
+
 func TestBuildRequestWithContext(t *testing.T) {
 	r := mflight.BuildRequestWithContext(context.Background(), "http://example.com:8080", "test-mobile-id")
 
