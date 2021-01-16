@@ -43,7 +43,7 @@ func TestGetSensorMonitor(t *testing.T) {
 	}
 }
 
-func TestRequestWithContext(t *testing.T) {
+func TestBuildRequestWithContext(t *testing.T) {
 	r := mflight.BuildRequestWithContext(context.Background(), "http://example.com:8080", "test-mobile-id")
 
 	want := "http://example.com:8080/SensorMonitorV2.xml?x-KEY_MOBILE_ID=test-mobile-id&x-KEY_UPDATE_DATE="
