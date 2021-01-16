@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func NewStubServer(t *testing.T) *httptest.Server {
+func NewStubServer(t *testing.T, response string) *httptest.Server {
 	t.Helper()
 
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -21,26 +21,7 @@ func NewStubServer(t *testing.T) *httptest.Server {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(
-			w,
-			`
-      <db>
-        <table id="67243">
-          <time>202101030000</time>
-          <unixtime>1609599600</unixtime>
-          <temp>22.0</temp>
-          <humi>43.3</humi>
-          <illu>405</illu>
-        </table>
-        <table id="67244">
-          <time>202101030005</time>
-          <unixtime>1609599900</unixtime>
-          <temp>21.9</temp>
-          <humi>43.0</humi>
-          <illu>406</illu>
-        </table>
-      </db>`,
-		)
+		fmt.Fprint(w, response)
 	}))
 
 	return s
