@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"mflight-api/domain"
-	"mflight-api/handler"
+	"mflight-api/interfaces/handler"
 	"net/http"
 	"net/http/httptest"
 	"testing"
