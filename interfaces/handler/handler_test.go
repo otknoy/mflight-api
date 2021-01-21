@@ -22,13 +22,13 @@ func TestServeHTTP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	want := `{"temperature": 20.0, "humidity": 50.0, "illuminance": 400}`
+	want := `{"temperature":21.3,"humidity":52.4,"illuminance":400}`
 
 	h := handler.NewSensorMetricsHandler(&stubMetricsCollector{
 		func(context.Context) (domain.Metrics, error) {
 			return domain.Metrics{
-				Temperature: domain.Temperature(20.0),
-				Humidity:    domain.Humidity(50.0),
+				Temperature: domain.Temperature(21.3),
+				Humidity:    domain.Humidity(52.4),
 				Illuminance: domain.Illuminance(400),
 			}, nil
 		},
@@ -59,7 +59,7 @@ func TestServeHTTP_sensor_error(t *testing.T) {
 	if v := got.Code; v != http.StatusInternalServerError {
 		t.Errorf("http status: 500, but %v\n", v)
 	}
-	if v := got.Body.String(); v != "{}" {
+	if v := got.Body.String(); v != `{"message":"failed to get metrics"}` {
 		t.Errorf("empty response:\nwant={}\n got=%v\n", v)
 	}
 }
