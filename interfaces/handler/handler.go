@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"mflight-api/application"
 	"net/http"
 )
@@ -27,7 +27,7 @@ func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandl
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m, err := h.metricsCollector.CollectMetrics(r.Context())
 	if err != nil {
-		internalServerError(w, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -39,17 +39,18 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	bytes, err := json.Marshal(res)
 	if err != nil {
-		internalServerError(w, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
+	successResponse(w, bytes)
 }
 
-func internalServerError(w http.ResponseWriter, err error) {
+func successResponse(w http.ResponseWriter, bytes []byte) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusInternalServerError)
-	fmt.Fprintf(w, `{"message":"%v"}`, err)
+	w.WriteHeader(http.StatusOK)
+	_, err := w.Write(bytes)
+	if err != nil {
+		log.Printf("Write failed: %v", err)
+	}
 }

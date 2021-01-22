@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 type stubMetricsCollector struct {
@@ -59,7 +61,7 @@ func TestServeHTTP_sensor_error(t *testing.T) {
 	if v := got.Code; v != http.StatusInternalServerError {
 		t.Errorf("http status: 500, but %v\n", v)
 	}
-	if v := got.Body.String(); v != `{"message":"failed to get metrics"}` {
-		t.Errorf("empty response:\nwant={}\n got=%v\n", v)
+	if diff := cmp.Diff(got.Body.String(), "failed to get metrics\n"); diff != "" {
+		t.Errorf("response body differs.\n%v", diff)
 	}
 }
