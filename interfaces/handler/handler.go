@@ -1,7 +1,8 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
 	"mflight-api/application"
 	"net/http"
 )
@@ -9,6 +10,12 @@ import (
 // SensorMetricsHandler is struct to get sensor metrics
 type SensorMetricsHandler struct {
 	metricsCollector application.MetricsCollector
+}
+
+type response struct {
+	Temperature float32 `json:"temperature"`
+	Humidity    float32 `json:"humidity"`
+	Illuminance int16   `json:"illuminance"`
 }
 
 // NewSensorMetricsHandler creates a new SensorMetricsHandler based on domain.Sensor
@@ -19,19 +26,31 @@ func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandl
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m, err := h.metricsCollector.CollectMetrics(r.Context())
-
-	w.Header().Set("Content-Type", "application/json")
-
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "{}")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	res := &response{
+		Temperature: float32(m.Temperature),
+		Humidity:    float32(m.Humidity),
+		Illuminance: int16(m.Illuminance),
+	}
+
+	bytes, err := json.Marshal(res)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	successResponse(w, bytes)
+}
+
+func successResponse(w http.ResponseWriter, bytes []byte) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(
-		w,
-		"{\"temperature\": %0.1f, \"humidity\": %0.1f, \"illuminance\": %d}",
-		m.Temperature, m.Humidity, m.Illuminance,
-	)
+	_, err := w.Write(bytes)
+	if err != nil {
+		log.Printf("Write failed: %v", err)
+	}
 }
