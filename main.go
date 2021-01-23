@@ -25,7 +25,9 @@ func main() {
 	}
 
 	sensor := mflight.NewMfLightSensor(
-		mflight.NewClient(c.MfLight.URL, c.MfLight.MobileID),
+		mflight.NewCacheClient(
+			mflight.NewClient(c.MfLight.URL, c.MfLight.MobileID),
+		),
 	)
 	metricsCollector := application.NewMetricsCollector(sensor)
 
