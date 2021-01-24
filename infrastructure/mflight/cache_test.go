@@ -30,13 +30,9 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	mockCache := mock_cache.NewMockCache(ctrl)
 
 	mockClient.EXPECT().
-		GetSensorMonitor(ctx).
-		Return(want, nil)
+		GetSensorMonitor(ctx).Return(want, nil)
 
-	c := mflight.NewCacheClient(
-		mockClient,
-		mockCache,
-	)
+	c := mflight.NewCacheClient(mockClient, mockCache)
 
 	t.Run("cache miss", func(t *testing.T) {
 		mockCache.EXPECT().
