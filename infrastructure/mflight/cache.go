@@ -26,11 +26,10 @@ func (c *cacheClient) GetSensorMonitor(ctx context.Context) (*Response, error) {
 	}
 
 	r, err := c.client.GetSensorMonitor(ctx)
-	if err != nil {
-		return r, err
-	}
 
-	c.cache.SetWithExpiration(key, r, time.Now().Add(5*time.Second))
+	if err == nil {
+		c.cache.SetWithExpiration(key, r, time.Now().Add(5*time.Second))
+	}
 
 	return r, err
 }
