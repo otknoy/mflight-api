@@ -6,6 +6,7 @@ import (
 	"log"
 	"mflight-api/application"
 	"mflight-api/config"
+	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight"
 	"mflight-api/infrastructure/prometheus/collector"
 	"mflight-api/infrastructure/prometheus/middleware"
@@ -27,6 +28,7 @@ func main() {
 	sensor := mflight.NewMfLightSensor(
 		mflight.NewCacheClient(
 			mflight.NewClient(c.MfLight.URL, c.MfLight.MobileID),
+			cache.New(),
 		),
 	)
 	metricsCollector := application.NewMetricsCollector(sensor)
