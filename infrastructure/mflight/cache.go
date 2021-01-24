@@ -8,8 +8,8 @@ import (
 )
 
 // NewCacheClient wraps client to enable caching
-func NewCacheClient(c Client) Client {
-	return &cacheClient{c, cache.New()}
+func NewCacheClient(client Client, cache cache.Cache) Client {
+	return &cacheClient{client, cache}
 }
 
 const key = "fixed"
