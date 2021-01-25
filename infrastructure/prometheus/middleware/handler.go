@@ -29,7 +29,7 @@ func (m *httpHandlerMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	duration := time.Since(start)
 
-	sv.WithLabelValues(
+	serverSv.WithLabelValues(
 		r.Method,
 		r.URL.Path,
 		strconv.Itoa(wr.status),
