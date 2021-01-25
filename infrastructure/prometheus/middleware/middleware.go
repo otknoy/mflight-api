@@ -6,6 +6,7 @@ import (
 
 var (
 	serverSv *prometheus.SummaryVec
+	clientSv *prometheus.SummaryVec
 )
 
 func init() {
@@ -15,6 +16,12 @@ func init() {
 		},
 		[]string{"method", "uri", "status"},
 	)
+	clientSv = prometheus.NewSummaryVec(
+		prometheus.SummaryOpts{
+			Name: "http_client_requests_seconds",
+		},
+		[]string{"method", "host", "uri", "status"},
+	)
 
-	prometheus.MustRegister(serverSv)
+	prometheus.MustRegister(serverSv, clientSv)
 }
