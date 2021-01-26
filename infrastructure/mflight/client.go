@@ -30,11 +30,13 @@ type Table struct {
 }
 
 // NewClient creates a new Client.
-func NewClient(baseURL, mobileID string) Client {
-	return &client{baseURL, mobileID}
+func NewClient(c *http.Client, baseURL, mobileID string) Client {
+	return &client{c, baseURL, mobileID}
 }
 
 type client struct {
+	client *http.Client
+
 	baseURL  string
 	mobileID string
 }
@@ -43,7 +45,7 @@ type client struct {
 func (c *client) GetSensorMonitor(ctx context.Context) (*Response, error) {
 	r := buildRequestWithContext(ctx, c.baseURL, c.mobileID)
 
-	resp, err := http.DefaultClient.Do(r)
+	resp, err := c.client.Do(r)
 	if err != nil {
 		return &Response{}, nil
 	}

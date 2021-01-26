@@ -3,6 +3,7 @@ package mflight_test
 import (
 	"context"
 	"mflight-api/infrastructure/mflight"
+	"net/http"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -28,7 +29,7 @@ func TestGetSensorMonitor(t *testing.T) {
       </db>`)
 	defer s.Close()
 
-	c := mflight.NewClient(s.URL, "test-mobile-id")
+	c := mflight.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
 	res, err := c.GetSensorMonitor(context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +61,7 @@ func TestGetSensorMonitor(t *testing.T) {
 }
 
 func TestGetSensorMonitor_network_error(t *testing.T) {
-	c := mflight.NewClient("http://hoge.test", "dummy-mobile-id")
+	c := mflight.NewClient(http.DefaultClient, "http://hoge.test", "dummy-mobile-id")
 
 	res, err := c.GetSensorMonitor(context.Background())
 
@@ -76,7 +77,7 @@ func TestGetSensorMonitor_invalid_response(t *testing.T) {
 	s := NewStubServer(t, `<db><table</table></db>`)
 	defer s.Close()
 
-	c := mflight.NewClient(s.URL, "test-mobile-id")
+	c := mflight.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
 	res, err := c.GetSensorMonitor(context.Background())
 
 	if err != nil {

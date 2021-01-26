@@ -27,7 +27,13 @@ func main() {
 
 	sensor := mflight.NewMfLightSensor(
 		mflight.NewCacheClient(
-			mflight.NewClient(c.MfLight.URL, c.MfLight.MobileID),
+			mflight.NewClient(
+				&http.Client{
+					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+				},
+				c.MfLight.URL,
+				c.MfLight.MobileID,
+			),
 			cache.New(),
 		),
 	)
