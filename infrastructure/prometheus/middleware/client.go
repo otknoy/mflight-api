@@ -30,8 +30,15 @@ func (m *httpRoundTripperMiddleware) RoundTrip(r *http.Request) (*http.Response,
 		r.Method,
 		r.URL.Host,
 		r.URL.Path,
-		res.Status,
+		status(res),
 	).Observe(duration.Seconds())
 
 	return res, err
+}
+
+func status(r *http.Response) string {
+	if r == nil {
+		return "CLIENT_ERROR"
+	}
+	return r.Status
 }
