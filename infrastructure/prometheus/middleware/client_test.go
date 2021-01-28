@@ -43,3 +43,24 @@ func TestRoundTrip(t *testing.T) {
 		t.Errorf("response differs.\n%v", diff)
 	}
 }
+
+func TestRoundTrip_internal_RoundTrip_returns_nil(t *testing.T) {
+	in := &http.Request{Method: "GET", URL: &url.URL{Host: "example.com:56002", Path: "/foo"}}
+
+	h := middleware.NewRoundTripperMetricsMiddleware(
+		&stubRoundTripper{
+			func(r *http.Request) (*http.Response, error) {
+				return nil, errors.New("error")
+			},
+		},
+	)
+
+	got, err := h.RoundTrip(in)
+
+	if err == nil {
+		t.Errorf("err should be nil.\n%v", err)
+	}
+	if got != nil {
+		t.Errorf("response differs.\n%v", got)
+	}
+}
