@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // Temperature is value object
 type Temperature float32
@@ -13,6 +16,7 @@ type Illuminance int16
 
 // Metrics has multiple sensor values
 type Metrics struct {
+	Time        time.Time
 	Temperature Temperature
 	Humidity    Humidity
 	Illuminance Illuminance

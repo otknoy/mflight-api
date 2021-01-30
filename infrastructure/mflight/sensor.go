@@ -3,6 +3,7 @@ package mflight
 import (
 	"context"
 	"mflight-api/domain"
+	"time"
 )
 
 type mfLightSensor struct {
@@ -28,6 +29,7 @@ func convert(tables []Table) domain.TimeSeriesMetrics {
 	ts := make([]domain.Metrics, len(tables))
 	for i, t := range tables {
 		ts[i] = domain.Metrics{
+			Time:        time.Unix(t.Unixtime, 0),
 			Temperature: domain.Temperature(t.Temperature),
 			Humidity:    domain.Humidity(t.Humidity),
 			Illuminance: domain.Illuminance(t.Illuminance),

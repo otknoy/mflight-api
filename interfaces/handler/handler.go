@@ -16,6 +16,7 @@ type SensorMetricsHandler struct {
 type response []metrics
 
 type metrics struct {
+	Unixtime    int64   `json:"unixtime"`
 	Temperature float32 `json:"temperature"`
 	Humidity    float32 `json:"humidity"`
 	Illuminance int16   `json:"illuminance"`
@@ -49,6 +50,7 @@ func convert(ts domain.TimeSeriesMetrics) response {
 	l := make([]metrics, len(ts))
 	for i, m := range ts {
 		l[i] = metrics{
+			Unixtime:    m.Time.Unix(),
 			Temperature: float32(m.Temperature),
 			Humidity:    float32(m.Humidity),
 			Illuminance: int16(m.Illuminance),
