@@ -2,12 +2,18 @@
 
 [SONY のマルチファンクションライト](https://www.sony.co.jp/Products/multifunctional-light/) から、気温 (temperature)、湿度 (humidity)、照度 (illuminance) を取得するための api
 
-# for testing
+# docker image
+
+- https://hub.docker.com/repository/docker/otknoy/mflight-api
+
+# dev
+
+## for testing
 
 - https://github.com/google/go-cmp
 - https://github.com/golang/mock
 
-## generate mock
+### generate mock
 
 ```
 //go:generate mockgen -source=$GOFILE -package=mock_$GOPACKAGE -destination=./mock_$GOPACKAGE/mock_$GOFILE`
