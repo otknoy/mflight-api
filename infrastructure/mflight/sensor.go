@@ -16,15 +16,15 @@ func NewMfLightSensor(c Client) domain.Sensor {
 }
 
 // GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.Metrics, error) {
+func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
 	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
-		return domain.Metrics{}, err
+		return domain.TimeSeriesMetrics{}, err
 	}
 
 	last := len(res.Tables) - 1
 	if last < 0 {
-		return domain.Metrics{}, fmt.Errorf("invalid api response: %v", res)
+		return domain.TimeSeriesMetrics{}, fmt.Errorf("invalid api response: %v", res)
 	}
 
 	table := res.Tables[len(res.Tables)-1]
@@ -35,5 +35,5 @@ func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.Metrics, error) 
 		Illuminance: domain.Illuminance(table.Illuminance),
 	}
 
-	return m, nil
+	return domain.TimeSeriesMetrics([]domain.Metrics{m}), nil
 }

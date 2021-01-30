@@ -18,7 +18,10 @@ type Metrics struct {
 	Illuminance Illuminance
 }
 
+// TimeSeriesMetrics is metrics list in time series order.
+type TimeSeriesMetrics []Metrics
+
 // Sensor is interface to get metrics
 type Sensor interface {
-	GetMetrics(ctx context.Context) (Metrics, error)
+	GetMetrics(ctx context.Context) (TimeSeriesMetrics, error)
 }
