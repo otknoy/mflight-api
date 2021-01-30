@@ -12,7 +12,9 @@ type SensorMetricsHandler struct {
 	metricsCollector application.MetricsCollector
 }
 
-type response struct {
+type response []metrics
+
+type metrics struct {
 	Temperature float32 `json:"temperature"`
 	Humidity    float32 `json:"humidity"`
 	Illuminance int16   `json:"illuminance"`
@@ -32,9 +34,11 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	res := &response{
-		Temperature: float32(m.Temperature),
-		Humidity:    float32(m.Humidity),
-		Illuminance: int16(m.Illuminance),
+		metrics{
+			Temperature: float32(m.Temperature),
+			Humidity:    float32(m.Humidity),
+			Illuminance: int16(m.Illuminance),
+		},
 	}
 
 	bytes, err := json.Marshal(res)

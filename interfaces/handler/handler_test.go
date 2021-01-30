@@ -24,7 +24,7 @@ func TestServeHTTP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	want := `{"temperature":21.3,"humidity":52.4,"illuminance":400}`
+	want := `[{"temperature":21.3,"humidity":52.4,"illuminance":400}]`
 
 	h := handler.NewSensorMetricsHandler(&stubMetricsCollector{
 		func(context.Context) (domain.Metrics, error) {
