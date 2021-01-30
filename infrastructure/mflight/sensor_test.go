@@ -47,6 +47,11 @@ func TestGetMetrics(t *testing.T) {
 
 	want := domain.TimeSeriesMetrics([]domain.Metrics{
 		{
+			Temperature: 25.4,
+			Humidity:    65.7,
+			Illuminance: 234,
+		},
+		{
 			Temperature: 21.9,
 			Humidity:    43.0,
 			Illuminance: 406,
@@ -67,7 +72,7 @@ func TestGetMetrics_when_empty_response(t *testing.T) {
 	sensor := mflight.NewMfLightSensor(c)
 
 	m, err := sensor.GetMetrics(context.Background())
-	if err == nil {
+	if err != nil {
 		t.Fatal(err)
 	}
 

@@ -2,7 +2,6 @@ package mflight
 
 import (
 	"context"
-	"fmt"
 	"mflight-api/domain"
 )
 
@@ -22,18 +21,17 @@ func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetric
 		return domain.TimeSeriesMetrics{}, err
 	}
 
-	last := len(res.Tables) - 1
-	if last < 0 {
-		return domain.TimeSeriesMetrics{}, fmt.Errorf("invalid api response: %v", res)
+	return convert(res.Tables), nil
+}
+
+func convert(tables []Table) domain.TimeSeriesMetrics {
+	ts := make([]domain.Metrics, len(tables))
+	for i, t := range tables {
+		ts[i] = domain.Metrics{
+			Temperature: domain.Temperature(t.Temperature),
+			Humidity:    domain.Humidity(t.Humidity),
+			Illuminance: domain.Illuminance(t.Illuminance),
+		}
 	}
-
-	table := res.Tables[len(res.Tables)-1]
-
-	m := domain.Metrics{
-		Temperature: domain.Temperature(table.Temperature),
-		Humidity:    domain.Humidity(table.Humidity),
-		Illuminance: domain.Illuminance(table.Illuminance),
-	}
-
-	return domain.TimeSeriesMetrics([]domain.Metrics{m}), nil
+	return domain.TimeSeriesMetrics(ts)
 }
