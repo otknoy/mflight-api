@@ -63,7 +63,7 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	go func() {
 		m, err := c.metricsCollector.CollectMetrics(ctx)
 		if err != nil {
-			log.Printf("failed to collect metrics %v", err)
+			log.Printf("failed to collect metrics: %v", err)
 			return
 		}
 
