@@ -5,35 +5,31 @@ import (
 	"time"
 )
 
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}
+
 // NewRoundTripperMetricsMiddleware returns a middleware that Wraps the provided http.RoundTripper
 // to observe the request count and total request duration.
 func NewRoundTripperMetricsMiddleware(rt http.RoundTripper) http.RoundTripper {
-	return &httpRoundTripperMiddleware{
-		rt: rt,
-	}
-}
+	return roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		start := time.Now()
 
-type httpRoundTripperMiddleware struct {
-	rt http.RoundTripper
-}
+		res, err := rt.RoundTrip(r)
 
-var _ http.RoundTripper = (*httpRoundTripperMiddleware)(nil)
+		duration := time.Since(start)
 
-func (m *httpRoundTripperMiddleware) RoundTrip(r *http.Request) (*http.Response, error) {
-	start := time.Now()
+		clientSv.WithLabelValues(
+			r.Method,
+			r.URL.Host,
+			r.URL.Path,
+			status(res),
+		).Observe(duration.Seconds())
 
-	res, err := m.rt.RoundTrip(r)
-
-	duration := time.Since(start)
-
-	clientSv.WithLabelValues(
-		r.Method,
-		r.URL.Host,
-		r.URL.Path,
-		status(res),
-	).Observe(duration.Seconds())
-
-	return res, err
+		return res, err
+	})
 }
 
 func status(r *http.Response) string {

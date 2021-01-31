@@ -9,29 +9,19 @@ import (
 // NewHandlerMetricsMiddleware returns a middleware that Wraps the provided http.Handler
 // to observe the request count and total request duration.
 func NewHandlerMetricsMiddleware(h http.Handler) http.Handler {
-	return &httpHandlerMiddleware{
-		h: h,
-	}
-}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 
-type httpHandlerMiddleware struct {
-	h http.Handler
-}
+		wr := newStatusRecoder(w)
 
-var _ http.Handler = (*httpHandlerMiddleware)(nil)
+		h.ServeHTTP(wr, r)
 
-func (m *httpHandlerMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
+		duration := time.Since(start)
 
-	wr := newStatusRecoder(w)
-
-	m.h.ServeHTTP(wr, r)
-
-	duration := time.Since(start)
-
-	serverSv.WithLabelValues(
-		r.Method,
-		r.URL.Path,
-		strconv.Itoa(wr.status),
-	).Observe(duration.Seconds())
+		serverSv.WithLabelValues(
+			r.Method,
+			r.URL.Path,
+			strconv.Itoa(wr.status),
+		).Observe(duration.Seconds())
+	})
 }
