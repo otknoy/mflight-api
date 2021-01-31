@@ -29,7 +29,7 @@ func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandl
 
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m, err := h.metricsCollector.CollectMetrics(r.Context())
+	m, err := h.metricsCollector.CollectTimeSeriesMetrics(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
