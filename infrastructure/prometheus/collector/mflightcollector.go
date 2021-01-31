@@ -61,18 +61,13 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 
 	mch := make(chan domain.Metrics)
 	go func() {
-		m, err := c.metricsCollector.CollectMetrics(ctx)
+		m, err := c.metricsCollector.CollectLatestMetrics(ctx)
 		if err != nil {
 			log.Printf("failed to collect metrics: %v", err)
 			return
 		}
 
-		if len(m) == 0 {
-			log.Print("empty metrics")
-			return
-		}
-
-		mch <- m[len(m)-1]
+		mch <- m
 	}()
 
 	select {

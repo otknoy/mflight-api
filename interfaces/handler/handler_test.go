@@ -14,11 +14,15 @@ import (
 )
 
 type stubMetricsCollector struct {
-	StubCollectMetrics func(context.Context) (domain.TimeSeriesMetrics, error)
+	StubCollectTimeSeriesMetrics func(context.Context) (domain.TimeSeriesMetrics, error)
 }
 
-func (s *stubMetricsCollector) CollectMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
-	return s.StubCollectMetrics(ctx)
+func (s *stubMetricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
+	return domain.Metrics{}, nil
+}
+
+func (s *stubMetricsCollector) CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+	return s.StubCollectTimeSeriesMetrics(ctx)
 }
 
 func TestServeHTTP(t *testing.T) {
