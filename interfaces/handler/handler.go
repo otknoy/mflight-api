@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"mflight-api/application"
+	"mflight-api/domain"
 	"net/http"
 )
 
@@ -12,7 +13,10 @@ type SensorMetricsHandler struct {
 	metricsCollector application.MetricsCollector
 }
 
-type response struct {
+type response []metrics
+
+type metrics struct {
+	Unixtime    int64   `json:"unixtime"`
 	Temperature float32 `json:"temperature"`
 	Humidity    float32 `json:"humidity"`
 	Illuminance int16   `json:"illuminance"`
@@ -31,11 +35,7 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := &response{
-		Temperature: float32(m.Temperature),
-		Humidity:    float32(m.Humidity),
-		Illuminance: int16(m.Illuminance),
-	}
+	res := convert(m)
 
 	bytes, err := json.Marshal(res)
 	if err != nil {
@@ -44,6 +44,19 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	successResponse(w, bytes)
+}
+
+func convert(ts domain.TimeSeriesMetrics) response {
+	l := make([]metrics, len(ts))
+	for i, m := range ts {
+		l[i] = metrics{
+			Unixtime:    m.Time.Unix(),
+			Temperature: float32(m.Temperature),
+			Humidity:    float32(m.Humidity),
+			Illuminance: int16(m.Illuminance),
+		}
+	}
+	return response(l)
 }
 
 func successResponse(w http.ResponseWriter, bytes []byte) {

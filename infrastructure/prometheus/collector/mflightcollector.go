@@ -67,7 +67,12 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 			return
 		}
 
-		mch <- m
+		if len(m) == 0 {
+			log.Print("empty metrics")
+			return
+		}
+
+		mch <- m[len(m)-1]
 	}()
 
 	select {

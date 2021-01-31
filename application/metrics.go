@@ -7,7 +7,7 @@ import (
 
 // MetricsCollector is interface to collect metrics
 type MetricsCollector interface {
-	CollectMetrics(ctx context.Context) (domain.Metrics, error)
+	CollectMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error)
 }
 
 // NewMetricsCollector creates a new MetricsCollector Based on domain.Sensor
@@ -20,6 +20,6 @@ type metricsCollector struct {
 }
 
 // CollectMetrics returns collected metrics
-func (c *metricsCollector) CollectMetrics(ctx context.Context) (domain.Metrics, error) {
+func (c *metricsCollector) CollectMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
 	return c.sensor.GetMetrics(ctx)
 }

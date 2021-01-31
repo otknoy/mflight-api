@@ -2,8 +2,8 @@ package mflight
 
 import (
 	"context"
-	"fmt"
 	"mflight-api/domain"
+	"time"
 )
 
 type mfLightSensor struct {
@@ -16,24 +16,24 @@ func NewMfLightSensor(c Client) domain.Sensor {
 }
 
 // GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.Metrics, error) {
+func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
 	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
-		return domain.Metrics{}, err
+		return domain.TimeSeriesMetrics{}, err
 	}
 
-	last := len(res.Tables) - 1
-	if last < 0 {
-		return domain.Metrics{}, fmt.Errorf("invalid api response: %v", res)
+	return convert(res.Tables), nil
+}
+
+func convert(tables []Table) domain.TimeSeriesMetrics {
+	ts := make([]domain.Metrics, len(tables))
+	for i, t := range tables {
+		ts[i] = domain.Metrics{
+			Time:        time.Unix(t.Unixtime, 0),
+			Temperature: domain.Temperature(t.Temperature),
+			Humidity:    domain.Humidity(t.Humidity),
+			Illuminance: domain.Illuminance(t.Illuminance),
+		}
 	}
-
-	table := res.Tables[len(res.Tables)-1]
-
-	m := domain.Metrics{
-		Temperature: domain.Temperature(table.Temperature),
-		Humidity:    domain.Humidity(table.Humidity),
-		Illuminance: domain.Illuminance(table.Illuminance),
-	}
-
-	return m, nil
+	return domain.TimeSeriesMetrics(ts)
 }

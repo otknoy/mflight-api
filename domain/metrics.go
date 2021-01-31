@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // Temperature is value object
 type Temperature float32
@@ -13,12 +16,16 @@ type Illuminance int16
 
 // Metrics has multiple sensor values
 type Metrics struct {
+	Time        time.Time
 	Temperature Temperature
 	Humidity    Humidity
 	Illuminance Illuminance
 }
 
+// TimeSeriesMetrics is metrics list in time series order.
+type TimeSeriesMetrics []Metrics
+
 // Sensor is interface to get metrics
 type Sensor interface {
-	GetMetrics(ctx context.Context) (Metrics, error)
+	GetMetrics(ctx context.Context) (TimeSeriesMetrics, error)
 }
