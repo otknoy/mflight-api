@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -36,7 +35,7 @@ func main() {
 				c.MfLight.MobileID,
 			),
 			cache.New(),
-			5*time.Second,
+			c.MfLight.CacheTTL,
 		),
 	)
 	metricsCollector := application.NewMetricsCollector(sensor)
