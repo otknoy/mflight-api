@@ -14,7 +14,7 @@ func (f ClientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
 }
 
 // NewCacheClient wraps client to enable caching
-func NewCacheClient(client Client, cache cache.Cache) Client {
+func NewCacheClient(client Client, cache cache.Cache, ttl time.Duration) Client {
 	const key = "fixed"
 
 	return ClientFunc(func(ctx context.Context) (*Response, error) {
@@ -26,7 +26,7 @@ func NewCacheClient(client Client, cache cache.Cache) Client {
 		r, err := client.GetSensorMonitor(ctx)
 
 		if err == nil {
-			cache.SetWithExpiration(key, r, time.Now().Add(5*time.Second))
+			cache.SetWithExpiration(key, r, time.Now().Add(ttl))
 		}
 
 		return r, err
