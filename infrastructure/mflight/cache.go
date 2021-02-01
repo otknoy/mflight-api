@@ -7,29 +7,28 @@ import (
 	"mflight-api/infrastructure/cache"
 )
 
+type ClientFunc func(context.Context) (*Response, error)
+
+func (f ClientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
+	return f(ctx)
+}
+
 // NewCacheClient wraps client to enable caching
 func NewCacheClient(client Client, cache cache.Cache) Client {
-	return &cacheClient{client, cache}
-}
+	const key = "fixed"
 
-const key = "fixed"
+	return ClientFunc(func(ctx context.Context) (*Response, error) {
+		v := cache.Get(key)
+		if v != nil {
+			return v.(*Response), nil
+		}
 
-type cacheClient struct {
-	client Client
-	cache  cache.Cache
-}
+		r, err := client.GetSensorMonitor(ctx)
 
-func (c *cacheClient) GetSensorMonitor(ctx context.Context) (*Response, error) {
-	v := c.cache.Get(key)
-	if v != nil {
-		return v.(*Response), nil
-	}
+		if err == nil {
+			cache.SetWithExpiration(key, r, time.Now().Add(5*time.Second))
+		}
 
-	r, err := c.client.GetSensorMonitor(ctx)
-
-	if err == nil {
-		c.cache.SetWithExpiration(key, r, time.Now().Add(5*time.Second))
-	}
-
-	return r, err
+		return r, err
+	})
 }
