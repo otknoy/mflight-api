@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"strconv"
+	"time"
 )
 
 // AppConfig has the configuration for entire application
@@ -16,6 +17,7 @@ type AppConfig struct {
 type MfLightConfig struct {
 	URL      string
 	MobileID string
+	CacheTTL time.Duration
 }
 
 // Load loads the configuration
@@ -28,10 +30,16 @@ func Load() (AppConfig, error) {
 	sc := AppConfig{
 		port,
 		MfLightConfig{
-			os.Getenv("APP_MFLIGHT_URL"),
-			os.Getenv("APP_MFLIGHT_MOBILE_ID"),
+			URL:      os.Getenv("APP_MFLIGHT_URL"),
+			MobileID: os.Getenv("APP_MFLIGHT_MOBILE_ID"),
+			CacheTTL: parseDuration(os.Getenv("APP_MFLIGHT_CACHE_TTL")),
 		},
 	}
 
 	return sc, nil
+}
+
+func parseDuration(s string) time.Duration {
+	d, _ := time.ParseDuration(s)
+	return d
 }

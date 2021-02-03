@@ -35,6 +35,7 @@ func main() {
 				c.MfLight.MobileID,
 			),
 			cache.New(),
+			c.MfLight.CacheTTL,
 		),
 	)
 	metricsCollector := application.NewMetricsCollector(sensor)

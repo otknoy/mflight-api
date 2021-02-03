@@ -6,6 +6,7 @@ import (
 	"mflight-api/infrastructure/mflight"
 	"mflight-api/infrastructure/mflight/mock_mflight"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
@@ -32,7 +33,7 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	mockClient.EXPECT().
 		GetSensorMonitor(ctx).Return(want, nil)
 
-	c := mflight.NewCacheClient(mockClient, mockCache)
+	c := mflight.NewCacheClient(mockClient, mockCache, 5*time.Second)
 
 	t.Run("cache miss", func(t *testing.T) {
 		mockCache.EXPECT().
