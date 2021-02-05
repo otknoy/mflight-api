@@ -29,3 +29,23 @@ $ find . -name 'mock_*.go'
 ./infrastructure/cache/mock_cache/mock_cache.go
 ```
 
+
+# Multifunctional Light 解析
+
+
+なんか POST できる
+```
+$ curl -v -X POST 'http://192.168.1.5:60001/'
+```
+
+設定取得
+```
+$ curl -s 'http://192.168.1.5:56000/ConfigurationData.xml?x-KEY_MOBILE_ID=foo&x-KEY_UPDATE_DATE=bar' | less
+```
+
+
+`/SensorMonitorV2.xml`
+```
+$ http://192.168.1.5:56002/SensorMonitorV2.xml?x-KEY_MOBILE_ID=foo&x-KEY_UPDATE_DATE=
+```
+temperature, humidity, illuminance が取得できる。
