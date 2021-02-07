@@ -25,20 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sensor := mflight.NewMfLightSensor(
-		mflight.NewCacheClient(
-			mflight.NewClient(
-				&http.Client{
-					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
-				},
-				c.MfLight.URL,
-				c.MfLight.MobileID,
-			),
-			cache.New(),
-			c.MfLight.CacheTTL,
-		),
-	)
-	metricsCollector := application.NewMetricsCollector(sensor)
+	metricsCollector := initMetricsCollector(&c.MfLight)
 
 	h := handler.NewSensorMetricsHandler(metricsCollector)
 
@@ -70,4 +57,22 @@ func main() {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
 	<-idleConnsClosed
+}
+
+func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
+	sensor := mflight.NewMfLightSensor(
+		mflight.NewCacheClient(
+			mflight.NewClient(
+				&http.Client{
+					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+				},
+				c.URL,
+				c.MobileID,
+			),
+			cache.New(),
+			c.CacheTTL,
+		),
+	)
+
+	return application.NewMetricsCollector(sensor)
 }
