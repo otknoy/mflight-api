@@ -27,21 +27,37 @@ type cache struct {
 	v map[string]item
 }
 
+func (c *cache) get(k string) (item, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	i, ok := c.v[k]
+	return i, ok
+}
+
+func (c *cache) set(k string, i item) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.v[k] = i
+}
+
+func (c *cache) delete(k string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	delete(c.v, k)
+}
+
 // Get returns cache value when key exists.
 func (c *cache) Get(k string) interface{} {
-	c.mu.RLock()
-	i, ok := c.v[k]
-	c.mu.RUnlock()
-
+	i, ok := c.get(k)
 	if !ok {
 		return nil
 	}
 
 	if i.expired() {
-		c.mu.Lock()
-		delete(c.v, k)
-		c.mu.Unlock()
-
+		c.delete(k)
 		return nil
 	}
 
@@ -50,13 +66,13 @@ func (c *cache) Get(k string) interface{} {
 
 // SetWithExpiration sets cache value by key.
 func (c *cache) SetWithExpiration(k string, v interface{}, e time.Time) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	c.v[k] = item{
-		expiration: e,
-		v:          v,
-	}
+	c.set(
+		k,
+		item{
+			expiration: e,
+			v:          v,
+		},
+	)
 }
 
 type item struct {
