@@ -2,6 +2,7 @@ package cache_test
 
 import (
 	"mflight-api/infrastructure/cache"
+	"sync"
 	"testing"
 	"time"
 
@@ -45,4 +46,68 @@ func TestCacheHit_Expired(t *testing.T) {
 	if v != nil {
 		t.Errorf("value should be nil. but %v", v)
 	}
+}
+
+func BenchmarkGet(b *testing.B) {
+	c := cache.New()
+	c.SetWithExpiration("test-key", "test-value", time.Now().Add(time.Hour))
+
+	var wg sync.WaitGroup
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 100; j++ {
+			wg.Add(1)
+			go func() {
+				c.Get("test-key")
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkSet(b *testing.B) {
+	c := cache.New()
+
+	var wg sync.WaitGroup
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 100; j++ {
+			wg.Add(1)
+			go func() {
+				c.SetWithExpiration("test-key", "test-value", time.Now())
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}
+	wg.Wait()
+}
+
+func BenchmarkGetSet(b *testing.B) {
+	c := cache.New()
+
+	var wg sync.WaitGroup
+
+	get := func() {
+		c.Get("test-key")
+	}
+
+	set := func() {
+		c.SetWithExpiration("test-key", "test-value", time.Now())
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 100; j++ {
+			wg.Add(1)
+			go get()
+			go set()
+			wg.Done()
+		}
+		wg.Wait()
+	}
+	wg.Wait()
 }
