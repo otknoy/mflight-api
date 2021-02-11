@@ -9,37 +9,37 @@ import (
 	"os/signal"
 )
 
-type HTTPServer struct {
-	srv *http.Server
+type server struct {
+	http.Server
 }
 
-func (s *HTTPServer) ListenAndServe(idleConnsClosed chan<- struct{}) {
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
+func (s *server) ListenAndServeWithGracefulShutdown() <-chan struct{} {
+	idleConnsClosed := make(chan struct{})
 
-		if err := s.srv.Shutdown(context.Background()); err != nil {
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt)
+
+		log.Printf("signal: %v", <-sig)
+
+		if err := s.Shutdown(context.Background()); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
 
 		close(idleConnsClosed)
 	}()
-	if err := s.srv.ListenAndServe(); err != http.ErrServerClosed {
+	if err := s.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
+
+	return idleConnsClosed
 }
 
-func NewServer(handlers map[string]http.Handler, port int) *HTTPServer {
-	mux := http.NewServeMux()
-	for path, handler := range handlers {
-		mux.Handle(path, handler)
+func NewServer(mux *http.ServeMux, port int) *server {
+	return &server{
+		http.Server{
+			Addr:    fmt.Sprintf(":%d", port),
+			Handler: mux,
+		},
 	}
-
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
-	}
-
-	return &HTTPServer{srv}
 }

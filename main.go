@@ -29,17 +29,15 @@ func main() {
 	col := collector.NewMfLightCollector(metricsCollector)
 	prometheus.MustRegister(col)
 
-	s := server.NewServer(
-		map[string]http.Handler{
-			"/getSensorMetrics": middleware.NewHandlerMetricsMiddleware(h),
-			"/metrics":          middleware.NewHandlerMetricsMiddleware(promhttp.Handler()),
-		},
-		c.Port,
-	)
+	mux := http.NewServeMux()
+	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
+	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
 
-	idleConnsClosed := make(chan struct{})
-	s.ListenAndServe(idleConnsClosed)
-	<-idleConnsClosed
+	s := server.NewServer(mux, c.Port)
+
+	log.Println("server start")
+	<-s.ListenAndServeWithGracefulShutdown()
+	log.Println("server shutdown")
 }
 
 func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
