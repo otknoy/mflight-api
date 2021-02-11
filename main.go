@@ -35,7 +35,9 @@ func main() {
 
 	s := server.NewServer(mux, c.Port)
 
+	log.Println("server start")
 	<-s.ListenAndServeWithGracefulShutdown()
+	log.Println("server shutdown")
 }
 
 func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
