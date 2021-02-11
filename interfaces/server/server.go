@@ -17,9 +17,10 @@ func (s *server) ListenAndServeWithGracefulShutdown() <-chan struct{} {
 	idleConnsClosed := make(chan struct{})
 
 	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt)
+
+		log.Printf("signal: %v", <-sig)
 
 		if err := s.Shutdown(context.Background()); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
