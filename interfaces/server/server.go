@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 )
 
 type server struct {
@@ -18,7 +19,7 @@ func (s *server) ListenAndServeWithGracefulShutdown() <-chan struct{} {
 
 	go func() {
 		sig := make(chan os.Signal, 1)
-		signal.Notify(sig, os.Interrupt)
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
 		log.Printf("signal: %v", <-sig)
 
