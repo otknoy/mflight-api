@@ -29,8 +29,6 @@ func TestServeHTTP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	want := `[{"unixtime":1609459200,"temperature":21.3,"humidity":52.4,"illuminance":400},{"unixtime":1609459259,"temperature":22.5,"humidity":50.2,"illuminance":401}]`
-
 	h := handler.NewSensorMetricsHandler(&stubMetricsCollector{
 		func(context.Context) (domain.TimeSeriesMetrics, error) {
 			return domain.TimeSeriesMetrics([]domain.Metrics{
@@ -55,6 +53,8 @@ func TestServeHTTP(t *testing.T) {
 	if v := got.Code; v != http.StatusOK {
 		t.Errorf("http status: 200, but %v\n", v)
 	}
+
+	want := `[{"unixtime":1609459200,"temperature":21.3,"humidity":52.4,"illuminance":400},{"unixtime":1609459259,"temperature":22.5,"humidity":50.2,"illuminance":401}]`
 	if v := got.Body.String(); v != want {
 		t.Errorf("invalid response json:\nwant=%v\n got=%v\n", want, v)
 	}
