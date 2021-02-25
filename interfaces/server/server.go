@@ -10,11 +10,12 @@ import (
 	"syscall"
 )
 
-type server struct {
+// GracefulShutdownServer is a wrapper of http.Server to gracefully shutdown
+type GracefulShutdownServer struct {
 	http.Server
 }
 
-func (s *server) ListenAndServeWithGracefulShutdown() <-chan struct{} {
+func (s *GracefulShutdownServer) ListenAndServeWithGracefulShutdown() <-chan struct{} {
 	idleConnsClosed := make(chan struct{})
 
 	go func() {
@@ -36,8 +37,8 @@ func (s *server) ListenAndServeWithGracefulShutdown() <-chan struct{} {
 	return idleConnsClosed
 }
 
-func NewServer(mux *http.ServeMux, port int) *server {
-	return &server{
+func NewServer(mux *http.ServeMux, port int) *GracefulShutdownServer {
+	return &GracefulShutdownServer{
 		http.Server{
 			Addr:    fmt.Sprintf(":%d", port),
 			Handler: mux,
