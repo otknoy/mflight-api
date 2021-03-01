@@ -22,22 +22,26 @@ func main() {
 		log.Fatal(err)
 	}
 
-	metricsCollector := initMetricsCollector(&c.MfLight)
+	mc := initMetricsCollector(&c.MfLight)
 
-	h := handler.NewSensorMetricsHandler(metricsCollector)
+	s := initServer(c.Port, mc)
 
-	col := collector.NewMfLightCollector(metricsCollector)
+	log.Println("server start")
+	<-s.ListenAndServeWithGracefulShutdown()
+	log.Println("server shutdown")
+}
+
+func initServer(port int, mc application.MetricsCollector) *server.GracefulShutdownServer {
+	h := handler.NewSensorMetricsHandler(mc)
+
+	col := collector.NewMfLightCollector(mc)
 	prometheus.MustRegister(col)
 
 	mux := http.NewServeMux()
 	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
 	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
 
-	s := server.NewServer(mux, c.Port)
-
-	log.Println("server start")
-	<-s.ListenAndServeWithGracefulShutdown()
-	log.Println("server shutdown")
+	return server.NewServer(mux, port)
 }
 
 func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
