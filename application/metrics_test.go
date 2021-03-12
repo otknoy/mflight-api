@@ -5,13 +5,20 @@ import (
 	"errors"
 	"mflight-api/application"
 	"mflight-api/domain"
-	"mflight-api/domain/mock_domain"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 )
+
+type mockSensor struct {
+	MockGetMetrics func(ctx context.Context) (domain.TimeSeriesMetrics, error)
+}
+
+func (s *mockSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+	return s.MockGetMetrics(ctx)
+}
 
 var (
 	a = domain.Metrics{
@@ -47,20 +54,18 @@ func TestCollectLatestMetrics(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
+		testCtx := context.Background()
 
-		ctx := context.Background()
+		collector := application.NewMetricsCollector(&mockSensor{
+			MockGetMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+				if ctx != testCtx {
+					t.Fail()
+				}
+				return domain.TimeSeriesMetrics(tt.m), tt.err
+			},
+		})
 
-		mockSensor := mock_domain.NewMockSensor(ctrl)
-		mockSensor.EXPECT().GetMetrics(ctx).Return(
-			domain.TimeSeriesMetrics(tt.m),
-			nil,
-		)
-
-		collector := application.NewMetricsCollector(mockSensor)
-
-		got, err := collector.CollectLatestMetrics(ctx)
+		got, err := collector.CollectLatestMetrics(testCtx)
 
 		if err != tt.err && err.Error() != tt.err.Error() {
 			t.Errorf("err differs\n got=%v\nwant=%v\n", err, tt.err)
@@ -79,10 +84,11 @@ func TestCollectTimeSeriesMetrics(t *testing.T) {
 
 	want := domain.TimeSeriesMetrics([]domain.Metrics{a, b, c})
 
-	mockSensor := mock_domain.NewMockSensor(ctrl)
-	mockSensor.EXPECT().GetMetrics(ctx).Return(want, nil)
-
-	collector := application.NewMetricsCollector(mockSensor)
+	collector := application.NewMetricsCollector(&mockSensor{
+		MockGetMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+			return want, nil
+		},
+	})
 
 	got, err := collector.CollectTimeSeriesMetrics(ctx)
 
