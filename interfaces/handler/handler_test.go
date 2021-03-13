@@ -1,8 +1,8 @@
 package handler_test
 
 import (
+	"context"
 	"errors"
-	"mflight-api/application/mock_application"
 	"mflight-api/domain"
 	"mflight-api/interfaces/handler"
 	"net/http"
@@ -10,37 +10,45 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestServeHTTP(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+type mockMetricsCollector struct {
+	MockCollectLatestMetrics     func(context.Context) (domain.Metrics, error)
+	MockCollectTimeSeriesMetrics func(context.Context) (domain.TimeSeriesMetrics, error)
+}
 
+func (c *mockMetricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
+	return c.MockCollectLatestMetrics(ctx)
+}
+
+func (c *mockMetricsCollector) CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+	return c.MockCollectTimeSeriesMetrics(ctx)
+}
+
+func TestServeHTTP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	mockMc := mock_application.NewMockMetricsCollector(ctrl)
-	mockMc.EXPECT().CollectTimeSeriesMetrics(gomock.Eq(req.Context())).Return(
-		domain.TimeSeriesMetrics([]domain.Metrics{
-			{
-				Time:        time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
-				Temperature: domain.Temperature(21.3),
-				Humidity:    domain.Humidity(52.4),
-				Illuminance: domain.Illuminance(400),
-			},
-			{
-				Time:        time.Date(2021, 1, 1, 0, 0, 59, 0, time.UTC),
-				Temperature: domain.Temperature(22.5),
-				Humidity:    domain.Humidity(50.2),
-				Illuminance: domain.Illuminance(401),
-			},
-		}),
-		nil,
-	)
-
-	h := handler.NewSensorMetricsHandler(mockMc)
+	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
+		MockCollectTimeSeriesMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+			return domain.TimeSeriesMetrics([]domain.Metrics{
+					{
+						Time:        time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
+						Temperature: domain.Temperature(21.3),
+						Humidity:    domain.Humidity(52.4),
+						Illuminance: domain.Illuminance(400),
+					},
+					{
+						Time:        time.Date(2021, 1, 1, 0, 0, 59, 0, time.UTC),
+						Temperature: domain.Temperature(22.5),
+						Humidity:    domain.Humidity(50.2),
+						Illuminance: domain.Illuminance(401),
+					},
+				}),
+				nil
+		},
+	})
 
 	h.ServeHTTP(got, req)
 
@@ -55,19 +63,14 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestServeHTTP_sensor_error(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	mockMc := mock_application.NewMockMetricsCollector(ctrl)
-	mockMc.EXPECT().CollectTimeSeriesMetrics(gomock.Eq(req.Context())).Return(
-		domain.TimeSeriesMetrics{},
-		errors.New("failed to get metrics"),
-	)
-
-	h := handler.NewSensorMetricsHandler(mockMc)
+	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
+		MockCollectTimeSeriesMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+			return domain.TimeSeriesMetrics{}, errors.New("failed to get metrics")
+		},
+	})
 
 	h.ServeHTTP(got, req)
 
