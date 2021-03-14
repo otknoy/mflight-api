@@ -1,4 +1,3 @@
-//go:generate mockgen -source=$GOFILE -package=mock_$GOPACKAGE -destination=./mock_$GOPACKAGE/mock_$GOFILE
 package mflight
 
 import (

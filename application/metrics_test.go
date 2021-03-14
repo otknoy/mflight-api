@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -77,9 +76,6 @@ func TestCollectLatestMetrics(t *testing.T) {
 }
 
 func TestCollectTimeSeriesMetrics(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	ctx := context.Background()
 
 	want := domain.TimeSeriesMetrics([]domain.Metrics{a, b, c})
