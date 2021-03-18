@@ -2,6 +2,7 @@ package mflight_test
 
 import (
 	"context"
+	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight"
 	"testing"
 	"time"
@@ -10,6 +11,7 @@ import (
 )
 
 type mockClient struct {
+	mflight.Client
 	MockGetSensorMonitor func(ctx context.Context) (*mflight.Response, error)
 }
 
@@ -18,6 +20,7 @@ func (c *mockClient) GetSensorMonitor(ctx context.Context) (*mflight.Response, e
 }
 
 type mockCache struct {
+	cache.Cache
 	MockGet               func(key string) interface{}
 	MockSetWithExpiration func(key string, value interface{}, expiration time.Time)
 }
