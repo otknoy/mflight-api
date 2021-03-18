@@ -12,16 +12,17 @@ import (
 )
 
 type stubClient struct {
-	stubGetSensorMonitor func(context.Context) (*mflight.Response, error)
+	mflight.Client
+	MockGetSensorMonitor func(context.Context) (*mflight.Response, error)
 }
 
 func (c *stubClient) GetSensorMonitor(ctx context.Context) (*mflight.Response, error) {
-	return c.stubGetSensorMonitor(ctx)
+	return c.MockGetSensorMonitor(ctx)
 }
 
 func TestGetMetrics(t *testing.T) {
 	c := &stubClient{
-		func(ctx context.Context) (*mflight.Response, error) {
+		MockGetSensorMonitor: func(ctx context.Context) (*mflight.Response, error) {
 			return &mflight.Response{
 				Tables: []mflight.Table{
 					{
@@ -69,7 +70,7 @@ func TestGetMetrics(t *testing.T) {
 
 func TestGetMetrics_when_empty_response(t *testing.T) {
 	c := &stubClient{
-		func(context.Context) (*mflight.Response, error) {
+		MockGetSensorMonitor: func(context.Context) (*mflight.Response, error) {
 			return &mflight.Response{}, nil
 		},
 	}
@@ -88,7 +89,7 @@ func TestGetMetrics_when_empty_response(t *testing.T) {
 
 func TestGetMetrics_when_request_failure(t *testing.T) {
 	c := &stubClient{
-		func(context.Context) (*mflight.Response, error) {
+		MockGetSensorMonitor: func(context.Context) (*mflight.Response, error) {
 			return &mflight.Response{}, errors.New("test")
 		},
 	}
