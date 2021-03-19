@@ -13,13 +13,6 @@ type AppConfig struct {
 	MfLight MfLightConfig
 }
 
-// MfLightConfig has the configuration to connect MfLight
-type MfLightConfig struct {
-	URL      string
-	MobileID string
-	CacheTTL time.Duration
-}
-
 // Load loads the configuration
 func Load() (AppConfig, error) {
 	port, err := strconv.Atoi(os.Getenv("APP_PORT"))
@@ -29,14 +22,25 @@ func Load() (AppConfig, error) {
 
 	sc := AppConfig{
 		port,
-		MfLightConfig{
-			URL:      os.Getenv("APP_MFLIGHT_URL"),
-			MobileID: os.Getenv("APP_MFLIGHT_MOBILE_ID"),
-			CacheTTL: parseDuration(os.Getenv("APP_MFLIGHT_CACHE_TTL")),
-		},
+		loadMfLightConfig(),
 	}
 
 	return sc, nil
+}
+
+// MfLightConfig has the configuration to connect MfLight
+type MfLightConfig struct {
+	URL      string
+	MobileID string
+	CacheTTL time.Duration
+}
+
+func loadMfLightConfig() MfLightConfig {
+	return MfLightConfig{
+		URL:      os.Getenv("APP_MFLIGHT_URL"),
+		MobileID: os.Getenv("APP_MFLIGHT_MOBILE_ID"),
+		CacheTTL: parseDuration(os.Getenv("APP_MFLIGHT_CACHE_TTL")),
+	}
 }
 
 func parseDuration(s string) time.Duration {
