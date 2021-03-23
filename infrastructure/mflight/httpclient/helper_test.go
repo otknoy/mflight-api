@@ -1,4 +1,4 @@
-package mflight_test
+package httpclient_test
 
 import (
 	"fmt"

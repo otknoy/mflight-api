@@ -4,6 +4,7 @@ import (
 	"context"
 	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight"
+	"mflight-api/infrastructure/mflight/httpclient"
 	"testing"
 	"time"
 
@@ -11,11 +12,11 @@ import (
 )
 
 type mockClient struct {
-	mflight.Client
-	MockGetSensorMonitor func(ctx context.Context) (*mflight.Response, error)
+	httpclient.Client
+	MockGetSensorMonitor func(ctx context.Context) (*httpclient.Response, error)
 }
 
-func (c *mockClient) GetSensorMonitor(ctx context.Context) (*mflight.Response, error) {
+func (c *mockClient) GetSensorMonitor(ctx context.Context) (*httpclient.Response, error) {
 	return c.MockGetSensorMonitor(ctx)
 }
 
@@ -36,8 +37,8 @@ func (c *mockCache) SetWithExpiration(key string, value interface{}, expiration 
 func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	testCtx := context.Background()
 
-	res := &mflight.Response{
-		Tables: []mflight.Table{
+	res := &httpclient.Response{
+		Tables: []httpclient.Table{
 			{
 				Temperature: 23.4,
 				Humidity:    45.6,
@@ -47,7 +48,7 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	}
 
 	mockClient := &mockClient{
-		MockGetSensorMonitor: func(ctx context.Context) (*mflight.Response, error) {
+		MockGetSensorMonitor: func(ctx context.Context) (*httpclient.Response, error) {
 			if ctx != testCtx {
 				t.Fail()
 			}

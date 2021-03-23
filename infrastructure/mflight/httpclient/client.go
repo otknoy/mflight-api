@@ -1,4 +1,4 @@
-package mflight
+package httpclient
 
 import (
 	"context"
