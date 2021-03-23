@@ -3,15 +3,16 @@ package mflight
 import (
 	"context"
 	"mflight-api/domain"
+	"mflight-api/infrastructure/mflight/httpclient"
 	"time"
 )
 
 type mfLightSensor struct {
-	client Client
+	client httpclient.Client
 }
 
 // NewMfLightSensor creates a new MfLight based on mflight.Client
-func NewMfLightSensor(c Client) domain.Sensor {
+func NewMfLightSensor(c httpclient.Client) domain.Sensor {
 	return &mfLightSensor{c}
 }
 
@@ -25,7 +26,7 @@ func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetric
 	return convert(res.Tables), nil
 }
 
-func convert(tables []Table) domain.TimeSeriesMetrics {
+func convert(tables []httpclient.Table) domain.TimeSeriesMetrics {
 	ts := make([]domain.Metrics, len(tables))
 	for i, t := range tables {
 		ts[i] = domain.Metrics{

@@ -1,4 +1,4 @@
-package mflight
+package httpclient
 
 var (
 	BuildRequestWithContext = buildRequestWithContext

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"mflight-api/domain"
 	"mflight-api/infrastructure/mflight"
+	"mflight-api/infrastructure/mflight/httpclient"
 	"testing"
 	"time"
 
@@ -12,19 +13,19 @@ import (
 )
 
 type stubClient struct {
-	mflight.Client
-	MockGetSensorMonitor func(context.Context) (*mflight.Response, error)
+	httpclient.Client
+	MockGetSensorMonitor func(context.Context) (*httpclient.Response, error)
 }
 
-func (c *stubClient) GetSensorMonitor(ctx context.Context) (*mflight.Response, error) {
+func (c *stubClient) GetSensorMonitor(ctx context.Context) (*httpclient.Response, error) {
 	return c.MockGetSensorMonitor(ctx)
 }
 
 func TestGetMetrics(t *testing.T) {
 	sensor := mflight.NewMfLightSensor(&stubClient{
-		MockGetSensorMonitor: func(ctx context.Context) (*mflight.Response, error) {
-			return &mflight.Response{
-				Tables: []mflight.Table{
+		MockGetSensorMonitor: func(ctx context.Context) (*httpclient.Response, error) {
+			return &httpclient.Response{
+				Tables: []httpclient.Table{
 					{
 						Unixtime:    1612020717,
 						Temperature: 25.4,
@@ -68,8 +69,8 @@ func TestGetMetrics(t *testing.T) {
 
 func TestGetMetrics_when_empty_response(t *testing.T) {
 	sensor := mflight.NewMfLightSensor(&stubClient{
-		MockGetSensorMonitor: func(context.Context) (*mflight.Response, error) {
-			return &mflight.Response{}, nil
+		MockGetSensorMonitor: func(context.Context) (*httpclient.Response, error) {
+			return &httpclient.Response{}, nil
 		},
 	})
 
@@ -85,8 +86,8 @@ func TestGetMetrics_when_empty_response(t *testing.T) {
 
 func TestGetMetrics_when_request_failure(t *testing.T) {
 	c := &stubClient{
-		MockGetSensorMonitor: func(context.Context) (*mflight.Response, error) {
-			return &mflight.Response{}, errors.New("test")
+		MockGetSensorMonitor: func(context.Context) (*httpclient.Response, error) {
+			return &httpclient.Response{}, errors.New("test")
 		},
 	}
 

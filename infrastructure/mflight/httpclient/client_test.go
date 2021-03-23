@@ -1,8 +1,8 @@
-package mflight_test
+package httpclient_test
 
 import (
 	"context"
-	"mflight-api/infrastructure/mflight"
+	"mflight-api/infrastructure/mflight/httpclient"
 	"net/http"
 	"testing"
 
@@ -29,14 +29,14 @@ func TestGetSensorMonitor(t *testing.T) {
       </db>`)
 	defer s.Close()
 
-	c := mflight.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
+	c := httpclient.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
 	res, err := c.GetSensorMonitor(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := &mflight.Response{
-		Tables: []mflight.Table{
+	want := &httpclient.Response{
+		Tables: []httpclient.Table{
 			{
 				ID:          67243,
 				Time:        "202101030000",
@@ -61,7 +61,7 @@ func TestGetSensorMonitor(t *testing.T) {
 }
 
 func TestGetSensorMonitor_network_error(t *testing.T) {
-	c := mflight.NewClient(http.DefaultClient, "http://hoge.test", "dummy-mobile-id")
+	c := httpclient.NewClient(http.DefaultClient, "http://hoge.test", "dummy-mobile-id")
 
 	res, err := c.GetSensorMonitor(context.Background())
 
@@ -77,7 +77,7 @@ func TestGetSensorMonitor_invalid_response(t *testing.T) {
 	s := NewStubServer(t, `<db><table</table></db>`)
 	defer s.Close()
 
-	c := mflight.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
+	c := httpclient.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
 	res, err := c.GetSensorMonitor(context.Background())
 
 	if err != nil {
@@ -89,7 +89,7 @@ func TestGetSensorMonitor_invalid_response(t *testing.T) {
 }
 
 func TestBuildRequestWithContext(t *testing.T) {
-	r := mflight.BuildRequestWithContext(context.Background(), "http://example.com:8080", "test-mobile-id")
+	r := httpclient.BuildRequestWithContext(context.Background(), "http://example.com:8080", "test-mobile-id")
 
 	want := "http://example.com:8080/SensorMonitorV2.xml?x-KEY_MOBILE_ID=test-mobile-id&x-KEY_UPDATE_DATE="
 

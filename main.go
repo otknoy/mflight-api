@@ -6,6 +6,7 @@ import (
 	"mflight-api/config"
 	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight"
+	"mflight-api/infrastructure/mflight/httpclient"
 	"mflight-api/infrastructure/prometheus/collector"
 	"mflight-api/infrastructure/prometheus/middleware"
 	"mflight-api/interfaces/handler"
@@ -47,7 +48,7 @@ func initServer(port int, mc application.MetricsCollector) *server.GracefulShutd
 func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
 	sensor := mflight.NewMfLightSensor(
 		mflight.NewCacheClient(
-			mflight.NewClient(
+			httpclient.NewClient(
 				&http.Client{
 					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
 				},
