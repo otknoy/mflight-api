@@ -1,7 +1,7 @@
 package config
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -17,7 +17,7 @@ type AppConfig struct {
 func Load() (AppConfig, error) {
 	port, err := strconv.Atoi(os.Getenv("APP_PORT"))
 	if err != nil {
-		return AppConfig{}, errors.New("invalid port")
+		return AppConfig{}, fmt.Errorf("invalid port: %w", err)
 	}
 
 	sc := AppConfig{
