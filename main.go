@@ -9,8 +9,8 @@ import (
 	"mflight-api/infrastructure/mflight/httpclient"
 	"mflight-api/infrastructure/prometheus/collector"
 	"mflight-api/infrastructure/prometheus/middleware"
+	"mflight-api/infrastructure/server"
 	"mflight-api/interfaces/handler"
-	"mflight-api/interfaces/server"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
