@@ -32,12 +32,7 @@ var (
 	})
 )
 
-// MfLightCollector is the MfLight metrics collector
-type MfLightCollector interface {
-	prometheus.Collector
-}
-
-// NewMfLightCollector create a new MfLightCollector based on the provided MetricsCollector
+// NewMfLightCollector create a new prometheus.Collector based on the provided MetricsCollector
 func NewMfLightCollector(c application.MetricsCollector) prometheus.Collector {
 	return &collector{c}
 }
