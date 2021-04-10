@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   mflight-api:
     build: .
@@ -9,4 +9,3 @@ services:
       APP_MFLIGHT_URL: "http://192.168.1.10:56002"
       APP_MFLIGHT_MOBILE_ID: "03050100-0200-8f00-0000-00000019f855"
       APP_MFLIGHT_CACHE_TTL: "5s"
-    mem_limit: 16m
