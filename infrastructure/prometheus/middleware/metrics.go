@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 var (
@@ -10,18 +11,16 @@ var (
 )
 
 func init() {
-	serverSv = prometheus.NewSummaryVec(
+	serverSv = promauto.NewSummaryVec(
 		prometheus.SummaryOpts{
 			Name: "http_server_requests_seconds",
 		},
 		[]string{"method", "uri", "status"},
 	)
-	clientSv = prometheus.NewSummaryVec(
+	clientSv = promauto.NewSummaryVec(
 		prometheus.SummaryOpts{
 			Name: "http_client_requests_seconds",
 		},
 		[]string{"method", "host", "uri", "status"},
 	)
-
-	prometheus.MustRegister(serverSv, clientSv)
 }
