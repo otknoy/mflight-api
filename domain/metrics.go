@@ -25,7 +25,7 @@ type Metrics struct {
 // TimeSeriesMetrics is metrics list in time series order.
 type TimeSeriesMetrics []Metrics
 
-// Sensor is interface to get metrics
-type Sensor interface {
+// MetricsRepository is interface to get metrics
+type MetricsRepository interface {
 	GetMetrics(ctx context.Context) (TimeSeriesMetrics, error)
 }

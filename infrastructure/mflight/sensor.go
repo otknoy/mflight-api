@@ -11,8 +11,8 @@ type mfLightSensor struct {
 	client httpclient.Client
 }
 
-// NewMfLightSensor creates a new MfLight based on mflight.Client
-func NewMfLightSensor(c httpclient.Client) domain.Sensor {
+// NewMfLightSensor creates a new domain.MetricsRepository based on mflight.Client
+func NewMfLightSensor(c httpclient.Client) domain.MetricsRepository {
 	return &mfLightSensor{c}
 }
 

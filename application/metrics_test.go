@@ -12,7 +12,7 @@ import (
 )
 
 type mockSensor struct {
-	domain.Sensor
+	domain.MetricsRepository
 	MockGetMetrics func(ctx context.Context) (domain.TimeSeriesMetrics, error)
 }
 
