@@ -12,13 +12,13 @@ type MetricsCollector interface {
 	CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error)
 }
 
-// NewMetricsCollector creates a new MetricsCollector Based on domain.Sensor
-func NewMetricsCollector(s domain.Sensor) MetricsCollector {
+// NewMetricsCollector creates a new MetricsCollector Based on domain.MetricsRepository
+func NewMetricsCollector(s domain.MetricsRepository) MetricsCollector {
 	return &metricsCollector{s}
 }
 
 type metricsCollector struct {
-	sensor domain.Sensor
+	sensor domain.MetricsRepository
 }
 
 // CollectLatestMetrics returns collected metrics
