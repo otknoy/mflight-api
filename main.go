@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"mflight-api/application"
 	"mflight-api/config"
@@ -28,7 +29,11 @@ func main() {
 	s := initServer(c.Port, mc)
 
 	log.Println("server start")
-	<-s.ListenAndServeWithGracefulShutdown()
+
+	if err := s.ListenAndServeWithGracefulShutdown(context.Background()); err != nil {
+		log.Fatalln("HTTP server Shutdown: ", err)
+	}
+
 	log.Println("server shutdown")
 }
 
