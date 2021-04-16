@@ -15,26 +15,29 @@ type GracefulShutdownServer struct {
 	http.Server
 }
 
-func (s *GracefulShutdownServer) ListenAndServeWithGracefulShutdown(ctx context.Context) error {
-	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+func (s *GracefulShutdownServer) ListenAndServeWithGracefulShutdown() error {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	done := make(chan interface{})
+
 	go func() {
-		if err := s.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("HTTP server ListenAndServe: %v", err)
+		<-ctx.Done()
+
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		log.Println("shutdown gracefully...")
+		if err := s.Shutdown(shutdownCtx); err != nil {
+			log.Printf("shutdown error: %v", err)
 		}
+
+		close(done)
 	}()
 
-	<-ctx.Done()
+	err := s.ListenAndServe()
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	log.Println("shutdown gracefully...")
-	err := s.Shutdown(shutdownCtx)
-	if err != nil {
-		log.Printf("HTTP server Shutdown: %v", err)
-	}
+	<-done
 
 	return err
 }
