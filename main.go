@@ -18,50 +18,43 @@ import (
 )
 
 func main() {
-	c, err := config.Load()
+	config, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	mc := initMetricsCollector(&c.MfLight)
+	server := func() *server.GracefulShutdownServer {
+		c := application.NewMetricsCollector(
+			mflight.NewMfLightSensor(
+				mflight.NewCacheClient(
+					httpclient.NewClient(
+						&http.Client{
+							Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+						},
+						config.MfLight.URL,
+						config.MfLight.MobileID,
+					),
+					cache.New(),
+					config.MfLight.CacheTTL,
+				),
+			))
 
-	s := initServer(c.Port, mc)
+		h := handler.NewSensorMetricsHandler(c)
+
+		col := collector.NewMfLightCollector(c)
+		prometheus.MustRegister(col)
+
+		mux := http.NewServeMux()
+		mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
+		mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
+
+		return server.NewServer(mux, config.Port)
+	}()
 
 	log.Println("server start")
 	defer log.Println("server shutdown")
 
-	if err := s.ListenAndServeWithGracefulShutdown(); err != http.ErrServerClosed {
+	if err := server.ListenAndServeWithGracefulShutdown(); err != http.ErrServerClosed {
 		log.Fatal("server error: ", err)
 	}
-}
-
-func initServer(port int, mc application.MetricsCollector) *server.GracefulShutdownServer {
-	h := handler.NewSensorMetricsHandler(mc)
-
-	col := collector.NewMfLightCollector(mc)
-	prometheus.MustRegister(col)
-
-	mux := http.NewServeMux()
-	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
-	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
-
-	return server.NewServer(mux, port)
-}
-
-func initMetricsCollector(c *config.MfLightConfig) application.MetricsCollector {
-	sensor := mflight.NewMfLightSensor(
-		mflight.NewCacheClient(
-			httpclient.NewClient(
-				&http.Client{
-					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
-				},
-				c.URL,
-				c.MobileID,
-			),
-			cache.New(),
-			c.CacheTTL,
-		),
-	)
-
-	return application.NewMetricsCollector(sensor)
 }
