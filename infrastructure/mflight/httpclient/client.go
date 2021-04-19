@@ -3,7 +3,7 @@ package httpclient
 import (
 	"context"
 	"encoding/xml"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -50,7 +50,7 @@ func (c *client) GetSensorMonitor(ctx context.Context) (*Response, error) {
 	}
 	defer resp.Body.Close()
 
-	byteArray, err := ioutil.ReadAll(resp.Body)
+	byteArray, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return &Response{}, nil
 	}
