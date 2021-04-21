@@ -50,11 +50,12 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements Collector
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	mch := make(chan domain.Metrics)
+	defer close(mch)
+
 	go func() {
 		m, err := c.metricsCollector.CollectLatestMetrics(ctx)
 		if err != nil {
