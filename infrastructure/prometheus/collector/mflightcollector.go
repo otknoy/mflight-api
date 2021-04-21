@@ -55,6 +55,8 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 
 	mch := make(chan domain.Metrics)
+	defer close(mch)
+
 	go func() {
 		m, err := c.metricsCollector.CollectLatestMetrics(ctx)
 		if err != nil {
