@@ -23,11 +23,14 @@ type metricsCollector struct {
 
 // CollectLatestMetrics returns collected metrics
 func (c *metricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
-	ts, _ := c.sensor.GetMetrics(ctx)
+	ts, err := c.sensor.GetMetrics(ctx)
+	if err != nil {
+		return domain.Metrics{}, err
+	}
 
 	last := len(ts) - 1
 	if last < 0 {
-		return domain.Metrics{}, errors.New("empty metrics")
+		return domain.Metrics{}, errors.New("no metrics")
 	}
 
 	return ts[last], nil
