@@ -43,14 +43,31 @@ var (
 
 func TestCollectLatestMetrics(t *testing.T) {
 	tests := []struct {
-		m    []domain.Metrics
-		want domain.Metrics
-		err  error
+		m       []domain.Metrics
+		err     error
+		want    domain.Metrics
+		wantErr error
 	}{
-		{[]domain.Metrics{a, b, c}, c, nil},
-		{[]domain.Metrics{a, b}, b, nil},
-		{[]domain.Metrics{a}, a, nil},
-		{[]domain.Metrics{}, domain.Metrics{}, errors.New("empty metrics")},
+		{
+			[]domain.Metrics{a, b, c}, nil,
+			c, nil,
+		},
+		{
+			[]domain.Metrics{a, b}, nil,
+			b, nil,
+		},
+		{
+			[]domain.Metrics{a}, nil,
+			a, nil,
+		},
+		{
+			[]domain.Metrics{}, errors.New("error"),
+			domain.Metrics{}, errors.New("error"),
+		},
+		{
+			[]domain.Metrics{}, nil,
+			domain.Metrics{}, errors.New("no metrics"),
+		},
 	}
 
 	for _, tt := range tests {
@@ -67,7 +84,7 @@ func TestCollectLatestMetrics(t *testing.T) {
 
 		got, err := collector.CollectLatestMetrics(testCtx)
 
-		if err != tt.err && err.Error() != tt.err.Error() {
+		if err != tt.wantErr && err.Error() != tt.wantErr.Error() {
 			t.Errorf("err differs\n got=%v\nwant=%v\n", err, tt.err)
 		}
 		if diff := cmp.Diff(got, tt.want); diff != "" {
