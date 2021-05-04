@@ -65,3 +65,12 @@ func TestLoad_cache_ttl(t *testing.T) {
 		}
 	}
 }
+
+func TestLoad_return_error_if_port_number_is_invalid(t *testing.T) {
+	os.Setenv("APP_PORT", "invalid-port-number")
+
+	_, err := config.Load()
+	if err == nil {
+		t.Error("error should occur.")
+	}
+}
