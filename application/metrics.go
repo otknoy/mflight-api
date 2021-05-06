@@ -12,7 +12,7 @@ type MetricsCollector interface {
 	CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error)
 }
 
-// NewMetricsCollector creates a new MetricsCollector Based on domain.MetricsRepository
+// NewMetricsCollector creates a new MetricsCollector based on domain.MetricsRepository
 func NewMetricsCollector(s domain.MetricsRepository) MetricsCollector {
 	return &metricsCollector{s}
 }
