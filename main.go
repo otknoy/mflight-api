@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"mflight-api/application"
 	"mflight-api/config"
@@ -18,6 +19,9 @@ import (
 )
 
 func main() {
+	hogeUrl := "http://example.com"
+	fmt.Println(hogeUrl)
+
 	config, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
