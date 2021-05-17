@@ -25,6 +25,6 @@ jobs:
       run: go test -v -cover ./...
 
     - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v2.5.2
+      uses: golangci/golangci-lint-action@v2
       with:
         version: v1.29
