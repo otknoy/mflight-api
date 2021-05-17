@@ -17,14 +17,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func foo(b bool) bool {
-	if b {
-		return true
-	} else {
-		return false
-	}
-}
-
 func main() {
 	config, err := config.Load()
 	if err != nil {
