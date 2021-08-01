@@ -56,7 +56,7 @@ func convert(ts domain.TimeSeriesMetrics) response {
 			Illuminance: int16(m.Illuminance),
 		}
 	}
-	return response(l)
+	return l
 }
 
 func successResponse(w http.ResponseWriter, bytes []byte) {

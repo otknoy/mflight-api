@@ -36,5 +36,5 @@ func convert(tables []httpclient.Table) domain.TimeSeriesMetrics {
 			Illuminance: domain.Illuminance(t.Illuminance),
 		}
 	}
-	return domain.TimeSeriesMetrics(ts)
+	return ts
 }
