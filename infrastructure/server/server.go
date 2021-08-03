@@ -19,7 +19,7 @@ func (s *GracefulShutdownServer) ListenAndServeWithGracefulShutdown() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	done := make(chan interface{})
+	done := make(chan struct{})
 
 	go func() {
 		<-ctx.Done()
