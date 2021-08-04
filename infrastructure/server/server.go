@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os/signal"
@@ -40,13 +39,4 @@ func (s *GracefulShutdownServer) ListenAndServeWithGracefulShutdown() error {
 	<-done
 
 	return err
-}
-
-func NewServer(mux *http.ServeMux, port int) *GracefulShutdownServer {
-	return &GracefulShutdownServer{
-		http.Server{
-			Addr:    fmt.Sprintf(":%d", port),
-			Handler: mux,
-		},
-	}
 }
