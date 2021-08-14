@@ -12,11 +12,11 @@ import (
 )
 
 type mockSensor struct {
-	domain.MetricsRepository
-	MockGetMetrics func(ctx context.Context) (domain.TimeSeriesMetrics, error)
+	domain.MetricsGetter
+	MockGetMetrics func(ctx context.Context) ([]domain.Metrics, error)
 }
 
-func (s *mockSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+func (s *mockSensor) GetMetrics(ctx context.Context) ([]domain.Metrics, error) {
 	return s.MockGetMetrics(ctx)
 }
 
@@ -74,11 +74,11 @@ func TestCollectLatestMetrics(t *testing.T) {
 		testCtx := context.Background()
 
 		collector := application.NewMetricsCollector(&mockSensor{
-			MockGetMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+			MockGetMetrics: func(ctx context.Context) ([]domain.Metrics, error) {
 				if ctx != testCtx {
 					t.Fail()
 				}
-				return domain.TimeSeriesMetrics(tt.m), tt.err
+				return tt.m, tt.err
 			},
 		})
 
@@ -96,15 +96,15 @@ func TestCollectLatestMetrics(t *testing.T) {
 func TestCollectTimeSeriesMetrics(t *testing.T) {
 	ctx := context.Background()
 
-	want := domain.TimeSeriesMetrics([]domain.Metrics{a, b, c})
+	want := []domain.Metrics{a, b, c}
 
 	collector := application.NewMetricsCollector(&mockSensor{
-		MockGetMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+		MockGetMetrics: func(ctx context.Context) ([]domain.Metrics, error) {
 			return want, nil
 		},
 	})
 
-	got, err := collector.CollectTimeSeriesMetrics(ctx)
+	got, err := collector.CollectMetricsList(ctx)
 
 	if err != nil {
 		t.Errorf("error: %v\n", err)

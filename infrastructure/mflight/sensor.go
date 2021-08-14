@@ -12,21 +12,21 @@ type mfLightSensor struct {
 }
 
 // NewMfLightSensor creates a new domain.MetricsRepository based on mflight.Client
-func NewMfLightSensor(c httpclient.Client) domain.MetricsRepository {
+func NewMfLightSensor(c httpclient.Client) domain.MetricsGetter {
 	return &mfLightSensor{c}
 }
 
 // GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
+func (l *mfLightSensor) GetMetrics(ctx context.Context) ([]domain.Metrics, error) {
 	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
-		return domain.TimeSeriesMetrics{}, err
+		return []domain.Metrics{}, err
 	}
 
 	return convert(res.Tables), nil
 }
 
-func convert(tables []httpclient.Table) domain.TimeSeriesMetrics {
+func convert(tables []httpclient.Table) []domain.Metrics {
 	ts := make([]domain.Metrics, len(tables))
 	for i, t := range tables {
 		ts[i] = domain.Metrics{

@@ -9,21 +9,21 @@ import (
 // MetricsCollector is interface to collect metrics
 type MetricsCollector interface {
 	CollectLatestMetrics(ctx context.Context) (domain.Metrics, error)
-	CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error)
+	CollectMetricsList(ctx context.Context) ([]domain.Metrics, error)
 }
 
 // NewMetricsCollector creates a new MetricsCollector based on domain.MetricsRepository
-func NewMetricsCollector(s domain.MetricsRepository) MetricsCollector {
-	return &metricsCollector{s}
+func NewMetricsCollector(g domain.MetricsGetter) MetricsCollector {
+	return &metricsCollector{g}
 }
 
 type metricsCollector struct {
-	sensor domain.MetricsRepository
+	g domain.MetricsGetter
 }
 
 // CollectLatestMetrics returns collected metrics
 func (c *metricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
-	ts, err := c.sensor.GetMetrics(ctx)
+	ts, err := c.g.GetMetrics(ctx)
 	if err != nil {
 		return domain.Metrics{}, err
 	}
@@ -36,7 +36,7 @@ func (c *metricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Met
 	return ts[last], nil
 }
 
-// CollectTimeSeriesMetrics returns collected metrics list
-func (c *metricsCollector) CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
-	return c.sensor.GetMetrics(ctx)
+// CollectMetricsList returns collected metrics list
+func (c *metricsCollector) CollectMetricsList(ctx context.Context) ([]domain.Metrics, error) {
+	return c.g.GetMetrics(ctx)
 }

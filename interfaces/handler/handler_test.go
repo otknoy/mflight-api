@@ -14,16 +14,16 @@ import (
 )
 
 type mockMetricsCollector struct {
-	MockCollectLatestMetrics     func(context.Context) (domain.Metrics, error)
-	MockCollectTimeSeriesMetrics func(context.Context) (domain.TimeSeriesMetrics, error)
+	MockCollectLatestMetrics func(context.Context) (domain.Metrics, error)
+	MockCollectMetricsList   func(context.Context) ([]domain.Metrics, error)
 }
 
 func (c *mockMetricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
 	return c.MockCollectLatestMetrics(ctx)
 }
 
-func (c *mockMetricsCollector) CollectTimeSeriesMetrics(ctx context.Context) (domain.TimeSeriesMetrics, error) {
-	return c.MockCollectTimeSeriesMetrics(ctx)
+func (c *mockMetricsCollector) CollectMetricsList(ctx context.Context) ([]domain.Metrics, error) {
+	return c.MockCollectMetricsList(ctx)
 }
 
 func TestServeHTTP(t *testing.T) {
@@ -31,8 +31,8 @@ func TestServeHTTP(t *testing.T) {
 	got := httptest.NewRecorder()
 
 	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
-		MockCollectTimeSeriesMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
-			return domain.TimeSeriesMetrics([]domain.Metrics{
+		MockCollectMetricsList: func(ctx context.Context) ([]domain.Metrics, error) {
+			return []domain.Metrics{
 					{
 						Time:        time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 						Temperature: domain.Temperature(21.3),
@@ -45,7 +45,7 @@ func TestServeHTTP(t *testing.T) {
 						Humidity:    domain.Humidity(50.2),
 						Illuminance: domain.Illuminance(401),
 					},
-				}),
+				},
 				nil
 		},
 	})
@@ -67,8 +67,8 @@ func TestServeHTTP_sensor_error(t *testing.T) {
 	got := httptest.NewRecorder()
 
 	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
-		MockCollectTimeSeriesMetrics: func(ctx context.Context) (domain.TimeSeriesMetrics, error) {
-			return domain.TimeSeriesMetrics{}, errors.New("failed to get metrics")
+		MockCollectMetricsList: func(ctx context.Context) ([]domain.Metrics, error) {
+			return []domain.Metrics{}, errors.New("failed to get metrics")
 		},
 	})
 
