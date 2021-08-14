@@ -29,7 +29,7 @@ func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandl
 
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m, err := h.metricsCollector.CollectTimeSeriesMetrics(r.Context())
+	m, err := h.metricsCollector.CollectMetricsList(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -46,17 +46,17 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	successResponse(w, bytes)
 }
 
-func convert(ts domain.TimeSeriesMetrics) response {
-	l := make([]metrics, len(ts))
-	for i, m := range ts {
-		l[i] = metrics{
+func convert(l []domain.Metrics) response {
+	res := make([]metrics, len(l))
+	for i, m := range l {
+		res[i] = metrics{
 			Unixtime:    m.Time.Unix(),
 			Temperature: float32(m.Temperature),
 			Humidity:    float32(m.Humidity),
 			Illuminance: int16(m.Illuminance),
 		}
 	}
-	return l
+	return res
 }
 
 func successResponse(w http.ResponseWriter, bytes []byte) {

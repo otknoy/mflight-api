@@ -22,10 +22,6 @@ type Metrics struct {
 	Illuminance Illuminance
 }
 
-// TimeSeriesMetrics is metrics list in time series order.
-type TimeSeriesMetrics []Metrics
-
-// MetricsRepository is interface to get metrics
-type MetricsRepository interface {
-	GetMetrics(ctx context.Context) (TimeSeriesMetrics, error)
+type MetricsGetter interface {
+	GetMetrics(ctx context.Context) ([]Metrics, error)
 }
