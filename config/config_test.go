@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"mflight-api/config"
-	"os"
 	"testing"
 	"time"
 
@@ -10,10 +9,10 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	os.Setenv("APP_PORT", "5000")
-	os.Setenv("APP_MFLIGHT_URL", "http://example.com:56002")
-	os.Setenv("APP_MFLIGHT_MOBILE_ID", "test-mobileID")
-	os.Setenv("APP_MFLIGHT_CACHE_TTL", "15s")
+	t.Setenv("APP_PORT", "5000")
+	t.Setenv("APP_MFLIGHT_URL", "http://example.com:56002")
+	t.Setenv("APP_MFLIGHT_MOBILE_ID", "test-mobileID")
+	t.Setenv("APP_MFLIGHT_CACHE_TTL", "15s")
 
 	got, _ := config.Load()
 
@@ -44,10 +43,10 @@ func TestLoad_cache_ttl(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		os.Setenv("APP_PORT", "5000")
-		os.Setenv("APP_MFLIGHT_URL", "http://example.com:56002")
-		os.Setenv("APP_MFLIGHT_MOBILE_ID", "test-mobileID")
-		os.Setenv("APP_MFLIGHT_CACHE_TTL", tt.ttl)
+		t.Setenv("APP_PORT", "5000")
+		t.Setenv("APP_MFLIGHT_URL", "http://example.com:56002")
+		t.Setenv("APP_MFLIGHT_MOBILE_ID", "test-mobileID")
+		t.Setenv("APP_MFLIGHT_CACHE_TTL", tt.ttl)
 
 		got, _ := config.Load()
 
@@ -67,7 +66,7 @@ func TestLoad_cache_ttl(t *testing.T) {
 }
 
 func TestLoad_return_error_if_port_number_is_invalid(t *testing.T) {
-	os.Setenv("APP_PORT", "invalid-port-number")
+	t.Setenv("APP_PORT", "invalid-port-number")
 
 	_, err := config.Load()
 	if err == nil {
