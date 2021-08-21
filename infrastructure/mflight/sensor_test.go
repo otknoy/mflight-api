@@ -48,7 +48,7 @@ func TestGetMetrics(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := []domain.Metrics{
+	want := domain.MetricsList([]domain.Metrics{
 		{
 			Time:        time.Date(2021, 1, 30, 15, 31, 57, 0, time.UTC),
 			Temperature: 25.4,
@@ -61,7 +61,8 @@ func TestGetMetrics(t *testing.T) {
 			Humidity:    43.0,
 			Illuminance: 406,
 		},
-	}
+	})
+
 	if diff := cmp.Diff(want, m); diff != "" {
 		t.Errorf("returned metrics differs\n%s", diff)
 	}
@@ -79,7 +80,7 @@ func TestGetMetrics_when_empty_response(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if diff := cmp.Diff([]domain.Metrics{}, m); diff != "" {
+	if diff := cmp.Diff(domain.MetricsList{}, m); diff != "" {
 		t.Errorf("returned metrics is not empty\n%s", diff)
 	}
 }
@@ -98,7 +99,7 @@ func TestGetMetrics_when_request_failure(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if diff := cmp.Diff([]domain.Metrics{}, m); diff != "" {
+	if diff := cmp.Diff(domain.MetricsList{}, m); diff != "" {
 		t.Errorf("returned metrics is not empty\n%s", diff)
 	}
 }
