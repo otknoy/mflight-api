@@ -26,21 +26,21 @@ func main() {
 
 	server := server.GracefulShutdownServer{
 		Server: func() http.Server {
-			c := application.NewMetricsCollector(
-				mflight.NewMfLightSensor(
-					mflight.NewCacheClient(
-						httpclient.NewClient(
-							&http.Client{
-								Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
-							},
-							config.MfLight.URL,
-							config.MfLight.MobileID,
-						),
-						cache.New(),
-						config.MfLight.CacheTTL,
+			metricsGetter := mflight.NewMfLightSensor(
+				mflight.NewCacheClient(
+					httpclient.NewClient(
+						&http.Client{
+							Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+						},
+						config.MfLight.URL,
+						config.MfLight.MobileID,
 					),
+					cache.New(),
+					config.MfLight.CacheTTL,
 				),
 			)
+
+			c := application.NewMetricsCollector(metricsGetter)
 
 			h := handler.NewSensorMetricsHandler(c)
 
