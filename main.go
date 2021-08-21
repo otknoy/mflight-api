@@ -39,7 +39,8 @@ func main() {
 						cache.New(),
 						config.MfLight.CacheTTL,
 					),
-				))
+				),
+			)
 
 			h := handler.NewSensorMetricsHandler(c)
 
