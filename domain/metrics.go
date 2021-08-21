@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -22,6 +23,18 @@ type Metrics struct {
 	Illuminance Illuminance
 }
 
+type MetricsList []Metrics
+
+func (l MetricsList) Last() (Metrics, error) {
+	if len(l) == 0 {
+		return Metrics{}, errors.New("empty")
+	}
+
+	last := len(l) - 1
+
+	return l[last], nil
+}
+
 type MetricsGetter interface {
-	GetMetrics(ctx context.Context) ([]Metrics, error)
+	GetMetrics(ctx context.Context) (MetricsList, error)
 }

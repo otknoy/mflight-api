@@ -44,8 +44,9 @@ func main() {
 
 			h := handler.NewSensorMetricsHandler(c)
 
-			col := collector.NewMfLightCollector(c)
-			prometheus.MustRegister(col)
+			prometheus.MustRegister(
+				collector.NewMfLightCollector(metricsGetter),
+			)
 
 			mux := http.NewServeMux()
 			mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))

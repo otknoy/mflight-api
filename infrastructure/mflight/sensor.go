@@ -17,7 +17,7 @@ func NewMfLightSensor(c httpclient.Client) domain.MetricsGetter {
 }
 
 // GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics(ctx context.Context) ([]domain.Metrics, error) {
+func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.MetricsList, error) {
 	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
 		return []domain.Metrics{}, err

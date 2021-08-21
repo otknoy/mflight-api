@@ -3,7 +3,6 @@ package collector
 import (
 	"context"
 	"log"
-	"mflight-api/application"
 	"mflight-api/domain"
 	"time"
 
@@ -32,13 +31,13 @@ var (
 	})
 )
 
-// NewMfLightCollector create a new prometheus.Collector based on the provided MetricsCollector
-func NewMfLightCollector(c application.MetricsCollector) prometheus.Collector {
-	return &collector{c}
+// NewMfLightCollector create a new prometheus.Collector based on the provided MetricsGetter
+func NewMfLightCollector(g domain.MetricsGetter) prometheus.Collector {
+	return &collector{g}
 }
 
 type collector struct {
-	metricsCollector application.MetricsCollector
+	metricsGetter domain.MetricsGetter
 }
 
 // Describe implements Collector
@@ -57,7 +56,13 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	defer close(mch)
 
 	go func() {
-		m, err := c.metricsCollector.CollectLatestMetrics(ctx)
+		l, err := c.metricsGetter.GetMetrics(ctx)
+		if err != nil {
+			log.Printf("failed to collect metrics: %v", err)
+			return
+		}
+
+		m, err := l.Last()
 		if err != nil {
 			log.Printf("failed to collect metrics: %v", err)
 			return
