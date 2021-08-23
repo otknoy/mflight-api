@@ -13,25 +13,20 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-type mockMetricsCollector struct {
-	MockCollectLatestMetrics func(context.Context) (domain.Metrics, error)
-	MockCollectMetricsList   func(context.Context) ([]domain.Metrics, error)
+type mockMetricsGetter struct {
+	MockGetMetrics func(context.Context) (domain.MetricsList, error)
 }
 
-func (c *mockMetricsCollector) CollectLatestMetrics(ctx context.Context) (domain.Metrics, error) {
-	return c.MockCollectLatestMetrics(ctx)
-}
-
-func (c *mockMetricsCollector) CollectMetricsList(ctx context.Context) ([]domain.Metrics, error) {
-	return c.MockCollectMetricsList(ctx)
+func (c *mockMetricsGetter) GetMetrics(ctx context.Context) (domain.MetricsList, error) {
+	return c.MockGetMetrics(ctx)
 }
 
 func TestServeHTTP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
-		MockCollectMetricsList: func(ctx context.Context) ([]domain.Metrics, error) {
+	h := handler.NewSensorMetricsHandler(&mockMetricsGetter{
+		MockGetMetrics: func(ctx context.Context) (domain.MetricsList, error) {
 			return []domain.Metrics{
 					{
 						Time:        time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -66,9 +61,9 @@ func TestServeHTTP_sensor_error(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "http://example.com/getSensorMetrics", nil)
 	got := httptest.NewRecorder()
 
-	h := handler.NewSensorMetricsHandler(&mockMetricsCollector{
-		MockCollectMetricsList: func(ctx context.Context) ([]domain.Metrics, error) {
-			return []domain.Metrics{}, errors.New("failed to get metrics")
+	h := handler.NewSensorMetricsHandler(&mockMetricsGetter{
+		MockGetMetrics: func(ctx context.Context) (domain.MetricsList, error) {
+			return domain.MetricsList{}, errors.New("failed to get metrics")
 		},
 	})
 

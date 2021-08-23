@@ -9,7 +9,6 @@ RUN go mod download
 COPY main.go .
 COPY config/ config/
 COPY domain/ domain/
-COPY application/ application/
 COPY interfaces/ interfaces/
 COPY infrastructure/ infrastructure/
 RUN CGO_ENABLED=0 go build -o mflight-api

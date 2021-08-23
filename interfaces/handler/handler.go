@@ -3,14 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"log"
-	"mflight-api/application"
 	"mflight-api/domain"
 	"net/http"
 )
 
 // SensorMetricsHandler is struct to get sensor metrics
 type SensorMetricsHandler struct {
-	metricsCollector application.MetricsCollector
+	metricsGetter domain.MetricsGetter
 }
 
 type response []metrics
@@ -22,20 +21,20 @@ type metrics struct {
 	Illuminance int16   `json:"illuminance"`
 }
 
-// NewSensorMetricsHandler creates a new SensorMetricsHandler based on domain.Sensor
-func NewSensorMetricsHandler(c application.MetricsCollector) *SensorMetricsHandler {
-	return &SensorMetricsHandler{c}
+// NewSensorMetricsHandler creates a new SensorMetricsHandler based on domain.MetricsGetter
+func NewSensorMetricsHandler(g domain.MetricsGetter) *SensorMetricsHandler {
+	return &SensorMetricsHandler{g}
 }
 
 // ServeHTTP implements http.Handler
 func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	m, err := h.metricsCollector.CollectMetricsList(r.Context())
+	l, err := h.metricsGetter.GetMetrics(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	res := convert(m)
+	res := convert(l)
 
 	bytes, err := json.Marshal(res)
 	if err != nil {
@@ -46,7 +45,7 @@ func (h *SensorMetricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	successResponse(w, bytes)
 }
 
-func convert(l []domain.Metrics) response {
+func convert(l domain.MetricsList) response {
 	res := make([]metrics, len(l))
 	for i, m := range l {
 		res[i] = metrics{
