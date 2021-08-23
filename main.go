@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"mflight-api/application"
 	"mflight-api/config"
 	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight"
@@ -40,9 +39,7 @@ func main() {
 				),
 			)
 
-			c := application.NewMetricsCollector(metricsGetter)
-
-			h := handler.NewSensorMetricsHandler(c)
+			h := handler.NewSensorMetricsHandler(metricsGetter)
 
 			prometheus.MustRegister(
 				collector.NewMfLightCollector(metricsGetter),
