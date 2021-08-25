@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"mflight-api/domain"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -49,46 +48,35 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements Collector
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	ctx := context.Background()
 
-	mch := make(chan domain.Metrics)
-	defer close(mch)
-
-	go func() {
-		l, err := c.metricsGetter.GetMetrics(ctx)
-		if err != nil {
-			log.Printf("failed to collect metrics: %v", err)
-			return
-		}
-
-		m, err := l.Last()
-		if err != nil {
-			log.Printf("failed to collect metrics: %v", err)
-			return
-		}
-
-		mch <- m
-	}()
-
-	select {
-	case <-ctx.Done():
-		log.Println("timeout: ", ctx.Err())
-	case m := <-mch:
-		ch <- prometheus.MustNewConstMetric(
-			temperatureGauge.Desc(),
-			prometheus.GaugeValue,
-			float64(m.Temperature),
-		)
-		ch <- prometheus.MustNewConstMetric(
-			humidityGauge.Desc(),
-			prometheus.GaugeValue,
-			float64(m.Humidity),
-		)
-		ch <- prometheus.MustNewConstMetric(
-			illuminanceGauge.Desc(),
-			prometheus.GaugeValue,
-			float64(m.Illuminance),
-		)
+	l, err := c.metricsGetter.GetMetrics(ctx)
+	if err != nil {
+		log.Printf("failed to collect metrics: %v", err)
+		return
 	}
+
+	m, err := l.Last()
+	if err != nil {
+		log.Printf("failed to collect metrics: %v", err)
+		return
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		temperatureGauge.Desc(),
+		prometheus.GaugeValue,
+		float64(m.Temperature),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		humidityGauge.Desc(),
+		prometheus.GaugeValue,
+		float64(m.Humidity),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		illuminanceGauge.Desc(),
+		prometheus.GaugeValue,
+		float64(m.Illuminance),
+	)
 }
