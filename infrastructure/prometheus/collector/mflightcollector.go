@@ -62,21 +62,11 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	ch <- prometheus.MustNewConstMetric(
-		temperatureGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Temperature),
-	)
+	temperatureGauge.Set(float64(m.Temperature))
+	humidityGauge.Set(float64(m.Humidity))
+	illuminanceGauge.Set(float64(m.Illuminance))
 
-	ch <- prometheus.MustNewConstMetric(
-		humidityGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Humidity),
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		illuminanceGauge.Desc(),
-		prometheus.GaugeValue,
-		float64(m.Illuminance),
-	)
+	temperatureGauge.Collect(ch)
+	humidityGauge.Collect(ch)
+	illuminanceGauge.Collect(ch)
 }
