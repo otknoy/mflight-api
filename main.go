@@ -26,36 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := func() http.Server {
-		metricsGetter := mflight.NewMfLightSensor(
-			mflight.NewCacheClient(
-				httpclient.NewClient(
-					&http.Client{
-						Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
-					},
-					config.MfLight.URL,
-					config.MfLight.MobileID,
-				),
-				cache.New(),
-				config.MfLight.CacheTTL,
-			),
-		)
-
-		h := handler.NewSensorMetricsHandler(metricsGetter)
-
-		prometheus.MustRegister(
-			collector.NewMfLightCollector(metricsGetter),
-		)
-
-		mux := http.NewServeMux()
-		mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
-		mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
-
-		return http.Server{
-			Addr:    fmt.Sprintf(":%d", config.Port),
-			Handler: mux,
-		}
-	}()
+	server := initServer(config)
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
@@ -83,4 +54,35 @@ func main() {
 	}
 
 	<-idleConnsClosed
+}
+
+func initServer(config config.AppConfig) http.Server {
+	metricsGetter := mflight.NewMfLightSensor(
+		mflight.NewCacheClient(
+			httpclient.NewClient(
+				&http.Client{
+					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+				},
+				config.MfLight.URL,
+				config.MfLight.MobileID,
+			),
+			cache.New(),
+			config.MfLight.CacheTTL,
+		),
+	)
+
+	h := handler.NewSensorMetricsHandler(metricsGetter)
+
+	prometheus.MustRegister(
+		collector.NewMfLightCollector(metricsGetter),
+	)
+
+	mux := http.NewServeMux()
+	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
+	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
+
+	return http.Server{
+		Addr:    fmt.Sprintf(":%d", config.Port),
+		Handler: mux,
+	}
 }
