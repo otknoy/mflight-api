@@ -57,7 +57,7 @@ func main() {
 }
 
 func initServer(config config.AppConfig) http.Server {
-	metricsGetter := mflight.NewMfLightSensor(
+	metricsGetter := mflight.NewMetricsGetter(
 		mflight.NewCacheClient(
 			httpclient.NewClient(
 				&http.Client{

@@ -22,7 +22,7 @@ func (c *stubClient) GetSensorMonitor(ctx context.Context) (*httpclient.Response
 }
 
 func TestGetMetrics(t *testing.T) {
-	sensor := mflight.NewMfLightSensor(&stubClient{
+	g := mflight.NewMetricsGetter(&stubClient{
 		MockGetSensorMonitor: func(ctx context.Context) (*httpclient.Response, error) {
 			return &httpclient.Response{
 				Tables: []httpclient.Table{
@@ -43,7 +43,7 @@ func TestGetMetrics(t *testing.T) {
 		},
 	})
 
-	m, err := sensor.GetMetrics(context.Background())
+	m, err := g.GetMetrics(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,13 +69,13 @@ func TestGetMetrics(t *testing.T) {
 }
 
 func TestGetMetrics_when_empty_response(t *testing.T) {
-	sensor := mflight.NewMfLightSensor(&stubClient{
+	g := mflight.NewMetricsGetter(&stubClient{
 		MockGetSensorMonitor: func(context.Context) (*httpclient.Response, error) {
 			return &httpclient.Response{}, nil
 		},
 	})
 
-	m, err := sensor.GetMetrics(context.Background())
+	m, err := g.GetMetrics(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,9 +92,9 @@ func TestGetMetrics_when_request_failure(t *testing.T) {
 		},
 	}
 
-	sensor := mflight.NewMfLightSensor(c)
+	g := mflight.NewMetricsGetter(c)
 
-	m, err := sensor.GetMetrics(context.Background())
+	m, err := g.GetMetrics(context.Background())
 	if err == nil {
 		t.Fatal(err)
 	}
