@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
-type mfLightSensor struct {
+type metricsGetter struct {
 	client httpclient.Client
 }
 
-// NewMfLightSensor creates a new domain.MetricsRepository based on mflight.Client
-func NewMfLightSensor(c httpclient.Client) domain.MetricsGetter {
-	return &mfLightSensor{c}
+// NewMetricsGetter creates a new domain.MetricsGetter based on mflight.Client
+func NewMetricsGetter(c httpclient.Client) domain.MetricsGetter {
+	return &metricsGetter{c}
 }
 
-// GetMetrics returns current Metrics
-func (l *mfLightSensor) GetMetrics(ctx context.Context) (domain.MetricsList, error) {
+// GetMetrics returns MetricsList
+func (l *metricsGetter) GetMetrics(ctx context.Context) (domain.MetricsList, error) {
 	res, err := l.client.GetSensorMonitor(ctx)
 	if err != nil {
 		return []domain.Metrics{}, err
