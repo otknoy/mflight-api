@@ -1,9 +1,8 @@
-package mflight_test
+package httpclient_test
 
 import (
 	"context"
 	"mflight-api/infrastructure/cache"
-	"mflight-api/infrastructure/mflight"
 	"mflight-api/infrastructure/mflight/httpclient"
 	"testing"
 	"time"
@@ -57,7 +56,7 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	}
 	mockCache := &mockCache{}
 
-	c := mflight.NewCacheClient(mockClient, mockCache, 5*time.Second)
+	c := httpclient.NewCacheClient(mockClient, mockCache, 5*time.Second)
 
 	t.Run("cache miss", func(t *testing.T) {
 		mockCache.MockGet = func(key string) interface{} {

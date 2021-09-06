@@ -58,7 +58,7 @@ func main() {
 
 func initServer(config config.AppConfig) http.Server {
 	metricsGetter := mflight.NewMetricsGetter(
-		mflight.NewCacheClient(
+		httpclient.NewCacheClient(
 			httpclient.NewClient(
 				&http.Client{
 					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
