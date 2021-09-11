@@ -18,13 +18,12 @@ func NewCacheClient(client Client, cache cache.Cache, ttl time.Duration) Client 
 	const key = "fixed"
 
 	return ClientFunc(func(ctx context.Context) (*Response, error) {
-		v := cache.Get(key)
-		if v != nil {
+		v, ok := cache.Get(key)
+		if ok {
 			return v.(*Response), nil
 		}
 
 		r, err := client.GetSensorMonitor(ctx)
-
 		if err == nil {
 			cache.SetWithExpiration(key, r, time.Now().Add(ttl))
 		}
