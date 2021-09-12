@@ -21,11 +21,11 @@ func (c *mockClient) GetSensorMonitor(ctx context.Context) (*httpclient.Response
 
 type mockCache struct {
 	cache.Cache
-	MockGet               func(key string) interface{}
+	MockGet               func(key string) (interface{}, bool)
 	MockSetWithExpiration func(key string, value interface{}, expiration time.Time)
 }
 
-func (c *mockCache) Get(key string) interface{} {
+func (c *mockCache) Get(key string) (interface{}, bool) {
 	return c.MockGet(key)
 }
 
@@ -59,11 +59,11 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	c := httpclient.NewCacheClient(mockClient, mockCache, 5*time.Second)
 
 	t.Run("cache miss", func(t *testing.T) {
-		mockCache.MockGet = func(key string) interface{} {
+		mockCache.MockGet = func(key string) (interface{}, bool) {
 			if key != "fixed" {
 				t.Fail()
 			}
-			return nil
+			return nil, false
 		}
 		mockCache.MockSetWithExpiration = func(key string, value interface{}, _ time.Time) {
 			if key != "fixed" && value != res {
@@ -83,11 +83,11 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	})
 
 	t.Run("cache hit", func(t *testing.T) {
-		mockCache.MockGet = func(key string) interface{} {
+		mockCache.MockGet = func(key string) (interface{}, bool) {
 			if key != "fixed" {
 				t.Fail()
 			}
-			return res
+			return res, true
 		}
 
 		got, err := c.GetSensorMonitor(testCtx)

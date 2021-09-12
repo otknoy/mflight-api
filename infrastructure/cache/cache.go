@@ -7,7 +7,7 @@ import (
 
 // Cache is interface to get/set cache item
 type Cache interface {
-	Get(key string) interface{}
+	Get(key string) (interface{}, bool)
 	SetWithExpiration(key string, value interface{}, expiration time.Time)
 }
 
@@ -49,18 +49,18 @@ func (c *cache) delete(k string) {
 }
 
 // Get returns cache value when key exists.
-func (c *cache) Get(k string) interface{} {
+func (c *cache) Get(k string) (interface{}, bool) {
 	i, ok := c.get(k)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
 	if i.expired() {
 		c.delete(k)
-		return nil
+		return nil, false
 	}
 
-	return i.v
+	return i.v, true
 }
 
 // SetWithExpiration sets cache value by key.

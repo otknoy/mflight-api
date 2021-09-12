@@ -17,7 +17,10 @@ func TestCacheHit(t *testing.T) {
 
 	c.SetWithExpiration("test-key", "test-value", maxTime)
 
-	v := c.Get("test-key")
+	v, ok := c.Get("test-key")
+	if !ok {
+		t.Error("cache miss")
+	}
 
 	if diff := cmp.Diff("test-value", v.(string)); diff != "" {
 		t.Errorf("value differs.\n%v", diff)
@@ -29,10 +32,9 @@ func TestCacheMiss(t *testing.T) {
 
 	c.SetWithExpiration("test-key", "test-value", maxTime)
 
-	v := c.Get("nothing")
-
-	if v != nil {
-		t.Errorf("value should be nil. but %v", v)
+	_, ok := c.Get("nothing")
+	if ok {
+		t.Error("cache hit")
 	}
 }
 
@@ -41,10 +43,9 @@ func TestCacheHit_Expired(t *testing.T) {
 
 	c.SetWithExpiration("test-key", "test-value", minTime)
 
-	v := c.Get("test-key")
-
-	if v != nil {
-		t.Errorf("value should be nil. but %v", v)
+	_, ok := c.Get("test-key")
+	if ok {
+		t.Error("cache hit")
 	}
 }
 
