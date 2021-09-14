@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"sync"
 	"time"
 )
 
@@ -13,50 +12,26 @@ type Cache interface {
 
 // New creates a new Cache
 func New() Cache {
-	v := make(map[string]item)
-
 	return &cache{
-		v: v,
+		newConcurrentMap(),
 	}
 }
 
 type cache struct {
-	mu sync.RWMutex
-
-	v map[string]item
-}
-
-func (c *cache) get(k string) (item, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	i, ok := c.v[k]
-	return i, ok
-}
-
-func (c *cache) set(k string, i item) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	c.v[k] = i
-}
-
-func (c *cache) delete(k string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	delete(c.v, k)
+	m *concurrentMap
 }
 
 // Get returns cache value when key exists.
 func (c *cache) Get(k string) (interface{}, bool) {
-	i, ok := c.get(k)
+	v, ok := c.m.Get(k)
 	if !ok {
 		return nil, false
 	}
 
+	i := v.(item)
+
 	if i.expired() {
-		c.delete(k)
+		c.m.Delete(k)
 		return nil, false
 	}
 
@@ -65,7 +40,7 @@ func (c *cache) Get(k string) (interface{}, bool) {
 
 // SetWithExpiration sets cache value by key.
 func (c *cache) SetWithExpiration(k string, v interface{}, e time.Time) {
-	c.set(
+	c.m.Put(
 		k,
 		item{
 			expiration: e,
