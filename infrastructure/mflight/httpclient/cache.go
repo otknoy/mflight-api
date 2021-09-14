@@ -1,33 +1,37 @@
 package httpclient
 
 import (
-	"context"
-	"time"
-
 	"mflight-api/infrastructure/cache"
+	"net/http"
+	"time"
 )
 
-type ClientFunc func(context.Context) (*Response, error)
+type roundTripperFunc func(*http.Request) (*http.Response, error)
 
-func (f ClientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
-	return f(ctx)
+func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
 }
 
-// NewCacheClient wraps client to enable caching
-func NewCacheClient(client Client, cache cache.Cache, ttl time.Duration) Client {
-	const key = "fixed"
+func NewRoundTripperCache(rt http.RoundTripper, cache cache.Cache) http.RoundTripper {
+	ttl := 5 * time.Second
 
-	return ClientFunc(func(ctx context.Context) (*Response, error) {
+	return roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		if r.Method != http.MethodGet {
+			return rt.RoundTrip(r)
+		}
+
+		key := r.URL.String()
+
 		v, ok := cache.Get(key)
 		if ok {
-			return v.(*Response), nil
+			return v.(*http.Response), nil
 		}
 
-		r, err := client.GetSensorMonitor(ctx)
+		res, err := rt.RoundTrip(r)
 		if err == nil {
-			cache.SetWithExpiration(key, r, time.Now().Add(ttl))
+			cache.SetWithExpiration(key, res, time.Now().Add(ttl))
 		}
 
-		return r, err
+		return res, err
 	})
 }

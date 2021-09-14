@@ -58,16 +58,15 @@ func main() {
 
 func initServer(config config.AppConfig) http.Server {
 	metricsGetter := mflight.NewMetricsGetter(
-		httpclient.NewCacheClient(
-			httpclient.NewClient(
-				&http.Client{
-					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
-				},
-				config.MfLight.URL,
-				config.MfLight.MobileID,
-			),
-			cache.New(),
-			config.MfLight.CacheTTL,
+		httpclient.NewClient(
+			&http.Client{
+				Transport: httpclient.NewRoundTripperCache(
+					middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+					cache.New(),
+				),
+			},
+			config.MfLight.URL,
+			config.MfLight.MobileID,
 		),
 	)
 

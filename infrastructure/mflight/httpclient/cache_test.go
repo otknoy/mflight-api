@@ -1,22 +1,23 @@
 package httpclient_test
 
 import (
-	"context"
 	"mflight-api/infrastructure/cache"
 	"mflight-api/infrastructure/mflight/httpclient"
+	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
 
-type mockClient struct {
-	httpclient.Client
-	MockGetSensorMonitor func(ctx context.Context) (*httpclient.Response, error)
+type mockRoundTripper struct {
+	http.RoundTripper
+	MockRoundTrip func(*http.Request) (*http.Response, error)
 }
 
-func (c *mockClient) GetSensorMonitor(ctx context.Context) (*httpclient.Response, error) {
-	return c.MockGetSensorMonitor(ctx)
+func (rt *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return rt.MockRoundTrip(req)
 }
 
 type mockCache struct {
@@ -33,22 +34,14 @@ func (c *mockCache) SetWithExpiration(key string, value interface{}, expiration 
 	c.MockSetWithExpiration(key, value, expiration)
 }
 
-func TestCacheClient_GetSensorMonitor(t *testing.T) {
-	testCtx := context.Background()
+func TestRoundTrip(t *testing.T) {
+	u, _ := url.Parse("http://foobar.test/foo")
+	testReq := &http.Request{Method: http.MethodGet, URL: u}
+	res := &http.Response{}
 
-	res := &httpclient.Response{
-		Tables: []httpclient.Table{
-			{
-				Temperature: 23.4,
-				Humidity:    45.6,
-				Illuminance: 678,
-			},
-		},
-	}
-
-	mockClient := &mockClient{
-		MockGetSensorMonitor: func(ctx context.Context) (*httpclient.Response, error) {
-			if ctx != testCtx {
+	mockRoundTripper := &mockRoundTripper{
+		MockRoundTrip: func(req *http.Request) (*http.Response, error) {
+			if req != testReq {
 				t.Fail()
 			}
 			return res, nil
@@ -56,25 +49,25 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 	}
 	mockCache := &mockCache{}
 
-	c := httpclient.NewCacheClient(mockClient, mockCache, 5*time.Second)
+	rtc := httpclient.NewRoundTripperCache(mockRoundTripper, mockCache)
 
 	t.Run("cache miss", func(t *testing.T) {
 		mockCache.MockGet = func(key string) (interface{}, bool) {
-			if key != "fixed" {
+			if key != "http://foobar.test/foo" {
 				t.Fail()
 			}
 			return nil, false
 		}
 		mockCache.MockSetWithExpiration = func(key string, value interface{}, _ time.Time) {
-			if key != "fixed" && value != res {
+			if key != "http://foobar.test/foo" && value != res {
 				t.Fail()
 			}
 		}
 
-		got, err := c.GetSensorMonitor(testCtx)
+		got, err := rtc.RoundTrip(testReq)
 
 		if err != nil {
-			t.Errorf("GetSensorMonitor returns error.\n%v", err)
+			t.Errorf("RoundTrip returns error.\n%v", err)
 		}
 
 		if diff := cmp.Diff(res, got); diff != "" {
@@ -84,16 +77,19 @@ func TestCacheClient_GetSensorMonitor(t *testing.T) {
 
 	t.Run("cache hit", func(t *testing.T) {
 		mockCache.MockGet = func(key string) (interface{}, bool) {
-			if key != "fixed" {
+			if key != "http://foobar.test/foo" {
 				t.Fail()
 			}
 			return res, true
 		}
+		mockCache.MockSetWithExpiration = func(_ string, _ interface{}, _ time.Time) {
+			t.Fail()
+		}
 
-		got, err := c.GetSensorMonitor(testCtx)
+		got, err := rtc.RoundTrip(testReq)
 
 		if err != nil {
-			t.Errorf("GetSensorMonitor returns error.\n%v", err)
+			t.Errorf("RoundTrip returns error.\n%v", err)
 		}
 
 		if diff := cmp.Diff(res, got); diff != "" {
