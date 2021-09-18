@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"sync"
 	"time"
 )
 
@@ -13,17 +14,17 @@ type Cache interface {
 // New creates a new Cache
 func New() Cache {
 	return &cache{
-		newConcurrentMap(),
+		m: &sync.Map{},
 	}
 }
 
 type cache struct {
-	m *concurrentMap
+	m *sync.Map
 }
 
 // Get returns cache value when key exists.
 func (c *cache) Get(k string) (interface{}, bool) {
-	v, ok := c.m.Get(k)
+	v, ok := c.m.Load(k)
 	if !ok {
 		return nil, false
 	}
@@ -40,7 +41,7 @@ func (c *cache) Get(k string) (interface{}, bool) {
 
 // SetWithExpiration sets cache value by key.
 func (c *cache) SetWithExpiration(k string, v interface{}, e time.Time) {
-	c.m.Put(
+	c.m.Store(
 		k,
 		item{
 			expiration: e,
