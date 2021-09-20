@@ -46,18 +46,18 @@ func (c *client) GetSensorMonitor(ctx context.Context) (*Response, error) {
 
 	resp, err := c.client.Do(r)
 	if err != nil {
-		return &Response{}, nil
+		return &Response{}, err
 	}
 	defer resp.Body.Close()
 
 	byteArray, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return &Response{}, nil
+		return &Response{}, err
 	}
 
 	res := &Response{}
 	if err := xml.Unmarshal(byteArray, &res); err != nil {
-		return &Response{}, nil
+		return &Response{}, err
 	}
 
 	return res, nil

@@ -63,13 +63,10 @@ func TestGetSensorMonitor(t *testing.T) {
 func TestGetSensorMonitor_network_error(t *testing.T) {
 	c := httpclient.NewClient(http.DefaultClient, "http://hoge.test", "dummy-mobile-id")
 
-	res, err := c.GetSensorMonitor(context.Background())
+	_, err := c.GetSensorMonitor(context.Background())
 
-	if err != nil {
+	if err == nil {
 		t.Errorf("should return error.")
-	}
-	if len(res.Tables) != 0 {
-		t.Errorf("shoud return empty response.")
 	}
 }
 
@@ -78,13 +75,10 @@ func TestGetSensorMonitor_invalid_response(t *testing.T) {
 	defer s.Close()
 
 	c := httpclient.NewClient(http.DefaultClient, s.URL, "test-mobile-id")
-	res, err := c.GetSensorMonitor(context.Background())
+	_, err := c.GetSensorMonitor(context.Background())
 
-	if err != nil {
+	if err == nil {
 		t.Errorf("should return error.")
-	}
-	if len(res.Tables) != 0 {
-		t.Errorf("shoud return empty response.")
 	}
 }
 
