@@ -7,9 +7,9 @@ import (
 	"mflight-api/infrastructure/cache"
 )
 
-type ClientFunc func(context.Context) (*Response, error)
+type clientFunc func(context.Context) (*Response, error)
 
-func (f ClientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
+func (f clientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
 	return f(ctx)
 }
 
@@ -17,7 +17,7 @@ func (f ClientFunc) GetSensorMonitor(ctx context.Context) (*Response, error) {
 func NewCacheClient(client Client, cache cache.Cache, ttl time.Duration) Client {
 	const key = "fixed"
 
-	return ClientFunc(func(ctx context.Context) (*Response, error) {
+	return clientFunc(func(ctx context.Context) (*Response, error) {
 		v, ok := cache.Get(key)
 		if ok {
 			return v.(*Response), nil
