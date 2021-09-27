@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"mflight-api/config"
@@ -11,10 +10,8 @@ import (
 	"mflight-api/infrastructure/mflight/httpclient"
 	"mflight-api/infrastructure/prometheus/collector"
 	"mflight-api/infrastructure/prometheus/middleware"
+	"mflight-api/infrastructure/server"
 	"net/http"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -28,35 +25,15 @@ func main() {
 
 	server := initServer(config)
 
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-		defer stop()
-
-		<-ctx.Done()
-
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		log.Println("shutdown gracefully...")
-		if err := server.Shutdown(shutdownCtx); err != nil {
-			log.Printf("shutdown error: %v", err)
-		}
-
-		close(idleConnsClosed)
-	}()
-
 	log.Println("server start")
 	defer log.Println("server shutdown")
 
-	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+	if err := server.ListenAndServeGracefully(); err != http.ErrServerClosed {
 		log.Fatal("server error: ", err)
 	}
-
-	<-idleConnsClosed
 }
 
-func initServer(config config.AppConfig) http.Server {
+func initServer(config config.AppConfig) server.GracefulShutdownServer {
 	metricsGetter := mflight.NewMetricsGetter(
 		httpclient.NewCacheClient(
 			httpclient.NewClient(
@@ -81,8 +58,10 @@ func initServer(config config.AppConfig) http.Server {
 	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
 	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
 
-	return http.Server{
-		Addr:    fmt.Sprintf(":%d", config.Port),
-		Handler: mux,
+	return server.GracefulShutdownServer{
+		Server: http.Server{
+			Addr:    fmt.Sprintf(":%d", config.Port),
+			Handler: mux,
+		},
 	}
 }
