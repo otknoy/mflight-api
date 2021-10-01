@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"mflight-api/config"
 	"mflight-api/handler"
 	"mflight-api/infrastructure/cache"
@@ -15,21 +14,27 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
+
+func init() {
+	l, _ := zap.NewDevelopment()
+	zap.ReplaceGlobals(l)
+}
 
 func main() {
 	config, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		zap.L().Fatal("config load failure", zap.Error(err))
 	}
 
 	server := initServer(config)
 
-	log.Println("server start")
-	defer log.Println("server shutdown")
+	zap.L().Info("server start")
+	defer zap.L().Info("server shutdown")
 
 	if err := server.ListenAndServeGracefully(); err != http.ErrServerClosed {
-		log.Fatal("server error: ", err)
+		zap.L().Fatal("server error", zap.Error(err))
 	}
 }
 
