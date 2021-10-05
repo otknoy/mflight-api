@@ -2,9 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"mflight-api/domain"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 // SensorMetricsHandler is struct to get sensor metrics
@@ -63,6 +64,6 @@ func successResponse(w http.ResponseWriter, bytes []byte) {
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write(bytes)
 	if err != nil {
-		log.Printf("Write failed: %v", err)
+		zap.L().Error("Write failed", zap.Error(err))
 	}
 }
