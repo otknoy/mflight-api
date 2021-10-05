@@ -2,10 +2,10 @@ package collector
 
 import (
 	"context"
-	"log"
 	"mflight-api/domain"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"go.uber.org/zap"
 )
 
 const (
@@ -52,13 +52,13 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 
 	l, err := c.metricsGetter.GetMetrics(ctx)
 	if err != nil {
-		log.Printf("failed to collect metrics: %v", err)
+		zap.L().Error("failed to collect metrics", zap.Error(err))
 		return
 	}
 
 	m, err := l.Last()
 	if err != nil {
-		log.Printf("failed to collect metrics: %v", err)
+		zap.L().Error("failed to collect metrics", zap.Error(err))
 		return
 	}
 
