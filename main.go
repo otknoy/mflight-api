@@ -43,7 +43,7 @@ func initServer(config config.AppConfig) server.GracefulShutdownServer {
 		httpclient.NewCacheClient(
 			httpclient.NewClient(
 				&http.Client{
-					Transport: middleware.NewRoundTripperMetricsMiddleware(http.DefaultTransport),
+					Transport: middleware.InstrumentRoundTripperMetrics(http.DefaultTransport),
 				},
 				config.MfLight.URL,
 				config.MfLight.MobileID,
