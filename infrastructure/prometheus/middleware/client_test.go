@@ -14,6 +14,7 @@ type stubRoundTripper struct {
 	StubRoundTrip func(*http.Request) (*http.Response, error)
 }
 
+
 func (rt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	return rt.StubRoundTrip(r)
 }
@@ -22,7 +23,7 @@ func TestRoundTrip(t *testing.T) {
 	in := &http.Request{Method: "GET", URL: &url.URL{Host: "example.com:56002", Path: "/foo"}}
 	want := &http.Response{Status: "200 OK"}
 
-	h := middleware.NewRoundTripperMetricsMiddleware(
+	h := middleware.InstrumentRoundTripperMetrics(
 		&stubRoundTripper{
 			func(r *http.Request) (*http.Response, error) {
 				if r == in {
@@ -47,7 +48,7 @@ func TestRoundTrip(t *testing.T) {
 func TestRoundTrip_internal_RoundTrip_returns_nil(t *testing.T) {
 	in := &http.Request{Method: "GET", URL: &url.URL{Host: "example.com:56002", Path: "/foo"}}
 
-	h := middleware.NewRoundTripperMetricsMiddleware(
+	h := middleware.InstrumentRoundTripperMetrics(
 		&stubRoundTripper{
 			func(r *http.Request) (*http.Response, error) {
 				return nil, errors.New("error")

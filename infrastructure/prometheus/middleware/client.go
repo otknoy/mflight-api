@@ -11,9 +11,9 @@ func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) {
 	return f(r)
 }
 
-// NewRoundTripperMetricsMiddleware returns a middleware that Wraps the provided http.RoundTripper
+// InstrumentRoundTripperMetrics returns a middleware that Wraps the provided http.RoundTripper
 // to observe the request count and total request duration.
-func NewRoundTripperMetricsMiddleware(rt http.RoundTripper) http.RoundTripper {
+func InstrumentRoundTripperMetrics(rt http.RoundTripper) http.RoundTripper {
 	return roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 		start := time.Now()
 
