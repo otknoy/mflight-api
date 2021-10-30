@@ -14,7 +14,6 @@ type stubRoundTripper struct {
 	StubRoundTrip func(*http.Request) (*http.Response, error)
 }
 
-
 func (rt *stubRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	return rt.StubRoundTrip(r)
 }

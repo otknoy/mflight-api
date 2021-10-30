@@ -60,8 +60,8 @@ func initServer(config config.AppConfig) server.GracefulShutdownServer {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/getSensorMetrics", middleware.NewHandlerMetricsMiddleware(h))
-	mux.Handle("/metrics", middleware.NewHandlerMetricsMiddleware(promhttp.Handler()))
+	mux.Handle("/getSensorMetrics", middleware.InstrumentHandlerMetrics(h))
+	mux.Handle("/metrics", middleware.InstrumentHandlerMetrics(promhttp.Handler()))
 
 	return server.GracefulShutdownServer{
 		Server: http.Server{
