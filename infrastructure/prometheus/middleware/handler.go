@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-// NewHandlerMetricsMiddleware returns a middleware that Wraps the provided http.Handler
+// InstrumentHandlerMetrics returns a middleware that Wraps the provided http.Handler
 // to observe the request count and total request duration.
-func NewHandlerMetricsMiddleware(h http.Handler) http.Handler {
+func InstrumentHandlerMetrics(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 

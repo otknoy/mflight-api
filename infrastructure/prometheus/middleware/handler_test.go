@@ -19,7 +19,7 @@ func (h *stubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestServeHTTP(t *testing.T) {
-	h := middleware.NewHandlerMetricsMiddleware(
+	h := middleware.InstrumentHandlerMetrics(
 		&stubHandler{
 			func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
