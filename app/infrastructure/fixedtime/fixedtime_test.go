@@ -1,7 +1,7 @@
 package fixedtime_test
 
 import (
-	"mflight-api/infrastructure/fixedtime"
+	"mflight-api/app/infrastructure/fixedtime"
 	"testing"
 	"time"
 

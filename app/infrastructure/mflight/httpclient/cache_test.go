@@ -2,8 +2,8 @@ package httpclient_test
 
 import (
 	"context"
-	"mflight-api/infrastructure/cache"
-	"mflight-api/infrastructure/mflight/httpclient"
+	"mflight-api/app/infrastructure/cache"
+	"mflight-api/app/infrastructure/mflight/httpclient"
 	"testing"
 	"time"
 

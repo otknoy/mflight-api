@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"mflight-api/domain"
+	"mflight-api/app/domain"
 	"net/http"
 
 	"go.uber.org/zap"

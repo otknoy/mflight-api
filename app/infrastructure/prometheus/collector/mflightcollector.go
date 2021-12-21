@@ -2,7 +2,7 @@ package collector
 
 import (
 	"context"
-	"mflight-api/domain"
+	"mflight-api/app/domain"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"

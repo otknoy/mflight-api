@@ -1,7 +1,7 @@
 package cache_test
 
 import (
-	"mflight-api/infrastructure/cache"
+	"mflight-api/app/infrastructure/cache"
 	"sync"
 	"testing"
 	"time"

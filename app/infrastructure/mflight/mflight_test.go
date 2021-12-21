@@ -3,9 +3,9 @@ package mflight_test
 import (
 	"context"
 	"errors"
-	"mflight-api/domain"
-	"mflight-api/infrastructure/mflight"
-	"mflight-api/infrastructure/mflight/httpclient"
+	"mflight-api/app/domain"
+	"mflight-api/app/infrastructure/mflight"
+	"mflight-api/app/infrastructure/mflight/httpclient"
 	"testing"
 	"time"
 

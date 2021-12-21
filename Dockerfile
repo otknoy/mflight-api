@@ -6,13 +6,9 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY main.go .
-COPY config/ config/
-COPY domain/ domain/
-COPY handler/ handler/
-COPY infrastructure/ infrastructure/
-RUN CGO_ENABLED=0 go build -o mflight-api
+COPY app/ app/
+RUN CGO_ENABLED=0 go build -o mflight-api app/main.go
 
 FROM scratch
-COPY --from=builder /app/mflight-api /bin/mflight-api
+COPY --from=builder /app/mflight-api /bin/
 ENTRYPOINT ["/bin/mflight-api"]
