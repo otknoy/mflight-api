@@ -2,7 +2,7 @@ package middleware_test
 
 import (
 	"errors"
-	"mflight-api/infrastructure/prometheus/middleware"
+	"mflight-api/app/infrastructure/prometheus/middleware"
 	"net/http"
 	"net/url"
 	"testing"

@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"mflight-api/config"
-	"mflight-api/handler"
-	"mflight-api/infrastructure/cache"
-	"mflight-api/infrastructure/mflight"
-	"mflight-api/infrastructure/mflight/httpclient"
-	"mflight-api/infrastructure/prometheus/collector"
-	"mflight-api/infrastructure/prometheus/middleware"
-	"mflight-api/infrastructure/server"
+	"mflight-api/app/config"
+	"mflight-api/app/handler"
+	"mflight-api/app/infrastructure/cache"
+	"mflight-api/app/infrastructure/mflight"
+	"mflight-api/app/infrastructure/mflight/httpclient"
+	"mflight-api/app/infrastructure/prometheus/collector"
+	"mflight-api/app/infrastructure/prometheus/middleware"
+	"mflight-api/app/infrastructure/server"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"

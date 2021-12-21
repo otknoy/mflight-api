@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"mflight-api/infrastructure/cache"
+	"mflight-api/app/infrastructure/cache"
 )
 
 type clientFunc func(context.Context) (*Response, error)

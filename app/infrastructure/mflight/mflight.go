@@ -2,8 +2,8 @@ package mflight
 
 import (
 	"context"
-	"mflight-api/domain"
-	"mflight-api/infrastructure/mflight/httpclient"
+	"mflight-api/app/domain"
+	"mflight-api/app/infrastructure/mflight/httpclient"
 	"time"
 )
 

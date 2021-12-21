@@ -3,8 +3,8 @@ package handler_test
 import (
 	"context"
 	"errors"
-	"mflight-api/domain"
-	"mflight-api/handler"
+	"mflight-api/app/domain"
+	"mflight-api/app/handler"
 	"net/http"
 	"net/http/httptest"
 	"testing"

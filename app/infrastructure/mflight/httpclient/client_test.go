@@ -2,7 +2,7 @@ package httpclient_test
 
 import (
 	"context"
-	"mflight-api/infrastructure/mflight/httpclient"
+	"mflight-api/app/infrastructure/mflight/httpclient"
 	"net/http"
 	"testing"
 

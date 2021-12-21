@@ -1,7 +1,7 @@
 package domain_test
 
 import (
-	"mflight-api/domain"
+	"mflight-api/app/domain"
 	"testing"
 	"time"
 

@@ -1,7 +1,7 @@
 package config_test
 
 import (
-	"mflight-api/config"
+	"mflight-api/app/config"
 	"testing"
 	"time"
 
