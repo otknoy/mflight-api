@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"mflight-api/app/infrastructure/clock"
 	"sync"
 	"time"
 )
@@ -15,11 +16,13 @@ type Cache interface {
 func New() Cache {
 	return &cache{
 		m: &sync.Map{},
+		c: clock.New(),
 	}
 }
 
 type cache struct {
 	m *sync.Map
+	c clock.Clock
 }
 
 // Get returns cache value when key exists.
@@ -31,7 +34,7 @@ func (c *cache) Get(k string) (interface{}, bool) {
 
 	i := v.(item)
 
-	if i.expired() {
+	if i.expired(c.c.Now()) {
 		c.m.Delete(k)
 		return nil, false
 	}
@@ -55,6 +58,6 @@ type item struct {
 	expiration time.Time
 }
 
-func (i item) expired() bool {
-	return time.Now().After(i.expiration)
+func (i item) expired(now time.Time) bool {
+	return now.After(i.expiration)
 }
