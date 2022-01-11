@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"mflight-api/app/config"
+	"mflight-api/app/domain"
 	"mflight-api/app/handler"
 	"mflight-api/app/infrastructure/cache"
 	"mflight-api/app/infrastructure/mflight"
@@ -38,20 +39,24 @@ func main() {
 	}
 }
 
-func initServer(config config.AppConfig) server.GracefulShutdownServer {
-	metricsGetter := mflight.NewMetricsGetter(
+func initMetricsGetter(config config.MfLightConfig) domain.MetricsGetter {
+	return mflight.NewMetricsGetter(
 		httpclient.NewCacheClient(
 			httpclient.NewClient(
 				&http.Client{
 					Transport: middleware.InstrumentRoundTripperMetrics(http.DefaultTransport),
 				},
-				config.MfLight.URL,
-				config.MfLight.MobileID,
+				config.URL,
+				config.MobileID,
 			),
 			cache.New(),
-			config.MfLight.CacheTTL,
+			config.CacheTTL,
 		),
 	)
+}
+
+func initServer(config config.AppConfig) server.GracefulShutdownServer {
+	metricsGetter := initMetricsGetter(config.MfLight)
 
 	h := handler.NewSensorMetricsHandler(metricsGetter)
 
