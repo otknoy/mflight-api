@@ -29,7 +29,10 @@ func main() {
 		zap.L().Fatal("config load failure", zap.Error(err))
 	}
 
-	server := initServer(config)
+	server := initServer(
+		initMetricsGetter(config.MfLight),
+		config.Port,
+	)
 
 	zap.L().Info("server start")
 	defer zap.L().Info("server shutdown")
@@ -55,9 +58,7 @@ func initMetricsGetter(config config.MfLightConfig) domain.MetricsGetter {
 	)
 }
 
-func initServer(config config.AppConfig) server.GracefulShutdownServer {
-	metricsGetter := initMetricsGetter(config.MfLight)
-
+func initServer(metricsGetter domain.MetricsGetter, port int) server.GracefulShutdownServer {
 	h := handler.NewSensorMetricsHandler(metricsGetter)
 
 	prometheus.MustRegister(
@@ -70,7 +71,7 @@ func initServer(config config.AppConfig) server.GracefulShutdownServer {
 
 	return server.GracefulShutdownServer{
 		Server: http.Server{
-			Addr:    fmt.Sprintf(":%d", config.Port),
+			Addr:    fmt.Sprintf(":%d", port),
 			Handler: mux,
 		},
 	}
