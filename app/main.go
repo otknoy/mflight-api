@@ -1,20 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"mflight-api/app/config"
 	"mflight-api/app/domain"
-	"mflight-api/app/handler"
 	"mflight-api/app/infrastructure/cache"
 	"mflight-api/app/infrastructure/mflight"
 	"mflight-api/app/infrastructure/mflight/httpclient"
-	"mflight-api/app/infrastructure/prometheus/collector"
 	"mflight-api/app/infrastructure/prometheus/middleware"
 	"mflight-api/app/infrastructure/server"
 	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +24,7 @@ func main() {
 		zap.L().Fatal("config load failure", zap.Error(err))
 	}
 
-	server := initServer(
+	server := server.New(
 		initMetricsGetter(config.MfLight),
 		config.Port,
 	)
@@ -56,23 +51,4 @@ func initMetricsGetter(config config.MfLightConfig) domain.MetricsGetter {
 			config.CacheTTL,
 		),
 	)
-}
-
-func initServer(metricsGetter domain.MetricsGetter, port int) server.GracefulShutdownServer {
-	h := handler.NewSensorMetricsHandler(metricsGetter)
-
-	prometheus.MustRegister(
-		collector.NewMfLightCollector(metricsGetter),
-	)
-
-	mux := http.NewServeMux()
-	mux.Handle("/getSensorMetrics", middleware.InstrumentHandlerMetrics(h))
-	mux.Handle("/metrics", middleware.InstrumentHandlerMetrics(promhttp.Handler()))
-
-	return server.GracefulShutdownServer{
-		Server: http.Server{
-			Addr:    fmt.Sprintf(":%d", port),
-			Handler: mux,
-		},
-	}
 }
