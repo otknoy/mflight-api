@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	namespace = "MultiFunctionLight"
+	namespace = "mflight"
 )
 
 var (
