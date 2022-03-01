@@ -18,7 +18,7 @@ func Load() (AppConfig, error) {
 	var c AppConfig
 	err := envconfig.Process("app", &c)
 	if err != nil {
-		return AppConfig{}, fmt.Errorf("invalid port: %w", err)
+		return AppConfig{}, fmt.Errorf("invalid config: %w", err)
 	}
 
 	return c, nil
