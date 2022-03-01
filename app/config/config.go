@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 // AppConfig has the configuration for entire application
@@ -13,37 +13,20 @@ type AppConfig struct {
 	MfLight MfLightConfig
 }
 
-// Load loads the configuration
-func Load() (AppConfig, error) {
-	port, err := strconv.Atoi(os.Getenv("APP_PORT"))
-	if err != nil {
-		return AppConfig{}, fmt.Errorf("invalid port: %w", err)
-	}
-
-	sc := AppConfig{
-		port,
-		loadMfLightConfig(),
-	}
-
-	return sc, nil
-}
-
 // MfLightConfig has the configuration to connect MfLight
 type MfLightConfig struct {
 	URL      string
-	MobileID string
-	CacheTTL time.Duration
+	MobileID string        `split_words:"true"`
+	CacheTTL time.Duration `split_words:"true"`
 }
 
-func loadMfLightConfig() MfLightConfig {
-	return MfLightConfig{
-		URL:      os.Getenv("APP_MFLIGHT_URL"),
-		MobileID: os.Getenv("APP_MFLIGHT_MOBILE_ID"),
-		CacheTTL: parseDuration(os.Getenv("APP_MFLIGHT_CACHE_TTL")),
+// Load loads the configuration
+func Load() (AppConfig, error) {
+	var c AppConfig
+	err := envconfig.Process("app", &c)
+	if err != nil {
+		return AppConfig{}, fmt.Errorf("invalid config: %w", err)
 	}
-}
 
-func parseDuration(s string) time.Duration {
-	d, _ := time.ParseDuration(s)
-	return d
+	return c, nil
 }
