@@ -13,6 +13,13 @@ type AppConfig struct {
 	MfLight MfLightConfig
 }
 
+// MfLightConfig has the configuration to connect MfLight
+type MfLightConfig struct {
+	URL      string
+	MobileID string        `split_words:"true"`
+	CacheTTL time.Duration `split_words:"true"`
+}
+
 // Load loads the configuration
 func Load() (AppConfig, error) {
 	var c AppConfig
@@ -22,11 +29,4 @@ func Load() (AppConfig, error) {
 	}
 
 	return c, nil
-}
-
-// MfLightConfig has the configuration to connect MfLight
-type MfLightConfig struct {
-	URL      string
-	MobileID string        `split_words:"true"`
-	CacheTTL time.Duration `split_words:"true"`
 }
