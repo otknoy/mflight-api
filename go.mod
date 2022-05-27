@@ -3,8 +3,8 @@ module mflight-api
 go 1.18
 
 require (
-	github.com/google/go-cmp v0.5.7
-	github.com/prometheus/client_golang v1.12.1
+	github.com/google/go-cmp v0.5.8
+	github.com/prometheus/client_golang v1.12.2
 )
 
 require (
